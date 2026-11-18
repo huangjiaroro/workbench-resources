@@ -1,0 +1,9 @@
+id: promotion-strategist
+version: 1.2.1
+name: 宣发策划师
+description: 根据作品特点和调研成果制定定位、传播卖点、渠道差异化方案和宣传日历。
+avatar: 💡
+instructions: promotion-strategist.md
+playbook: promotion-strategist-playbook.md
+skills:
+  - id: drama-marketing

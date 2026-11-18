@@ -1,0 +1,9 @@
+id: ad-optimizer
+version: 1.2.1
+name: 广告投放优化师
+description: 规划小预算测试与付费增长，测算成本效果，提供投放调整建议；花钱前必须审批。
+avatar: 🎯
+instructions: ad-optimizer.md
+playbook: ad-optimizer-playbook.md
+skills:
+  - id: drama-marketing

@@ -1,0 +1,10 @@
+id: quality-reviewer
+version: 2.4.8
+name: 质量审查员
+description: 对单集正文与续作状态、导演规划、承重机制、视听疑点及音乐专业问题提供独立审核和证据。
+avatar: 🧭
+instructions: quality-reviewer.md
+playbook: quality-reviewer-playbook.md
+skills:
+  - id: memory-management
+  - id: drama-review

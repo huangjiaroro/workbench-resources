@@ -1,0 +1,22 @@
+id: music-studio
+version: 1.7.18
+workMode: projects
+name: 音乐创作组织
+playbook: playbook.md
+artifactContract: artifacts.yaml
+employees:
+  - role: leader
+    name: 音乐主创
+    definition: { id: music-producer, version: 1.4.8 }
+    roleInstructions: leader.md
+    canDelegate: true
+  - role: researcher
+    name: 创作研究员
+    definition: { id: creative-researcher, version: 1.4.3 }
+    roleInstructions: researcher.md
+    canDelegate: false
+  - role: reviewer
+    name: 质量审查员
+    definition: { id: quality-reviewer, version: 2.4.8 }
+    roleInstructions: reviewer.md
+    canDelegate: false

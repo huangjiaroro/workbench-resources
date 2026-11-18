@@ -1,0 +1,9 @@
+id: growth-analyst
+version: 1.2.1
+name: 数据增长分析师
+description: 建立曝光、播放、完播、引流与收益漏斗，输出增长分析与实验复盘。
+avatar: 📊
+instructions: growth-analyst.md
+playbook: growth-analyst-playbook.md
+skills:
+  - id: drama-marketing

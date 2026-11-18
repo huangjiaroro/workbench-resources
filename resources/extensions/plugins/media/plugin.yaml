@@ -1,0 +1,32 @@
+format: 3
+id: media
+version: 1.0.3
+name: 媒体插件
+description: 读取媒体信息、按指定时间抽帧、提取音频和拼接视频，包含跨平台工具与配套技能。
+docs: WORKBENCH-TOOLS.md
+entrypoints:
+  - id: cli
+    path: scripts/cli.mjs
+    interpreter: node
+    description: 安装后使用 wb-media；具体参数与证据范围见配套技能。
+    args: []
+prepare:
+  path: scripts/setup.mjs
+  interpreter: node
+  timeoutSeconds: 600
+commands:
+  - name: wb-media
+    path: scripts/cli.mjs
+    interpreter: node
+dependencies: []
+configuration:
+  schema:
+    type: object
+    additionalProperties: false
+    properties: {}
+    required: []
+ui: []
+recommendedSkills: []
+skills:
+  - skills/media-inspection
+  - skills/media-assembly

@@ -1,0 +1,32 @@
+format: 3
+id: project-materials
+version: 1.0.9
+name: 作品资料
+description: 浏览当前作品的文档与媒体资料，支持短剧各阶段产物与分集层级视听规划。
+docs: WORKBENCH-TOOLS.md
+entrypoints: []
+dependencies: []
+configuration:
+  schema:
+    type: object
+    additionalProperties: false
+    properties: {}
+    required: []
+ui:
+  - id: drama-library
+    type: workspace.panel
+    title: 作品资料
+    entry: ui/library.html
+    styles:
+      - ui/library.css
+    scripts:
+      - ui/library.js
+    height: 720
+    contexts:
+      - project
+    permissions:
+      - artifact.summary.read
+      - artifact.content.read
+      - media.summary.read
+      - media.content.read
+recommendedSkills: []

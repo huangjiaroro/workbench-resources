@@ -1,0 +1,58 @@
+id: engineering-team
+version: 1.1.1
+workMode: both
+name: 研发工程部
+playbook: playbook.md
+artifactContract: artifacts.yaml
+plugins:
+  - id: github
+employees:
+  - role: leader
+    name: 技术负责人
+    definition:
+      id: engineering-lead
+      version: 1.0.1
+    roleInstructions: role-leader.md
+    canDelegate: true
+  - role: researcher
+    name: 技术研究员
+    definition:
+      id: technical-researcher
+      version: 1.0.0
+    roleInstructions: role-researcher.md
+    canDelegate: false
+  - role: backend
+    name: 后端开发工程师
+    definition:
+      id: backend-developer
+      version: 1.0.1
+    roleInstructions: role-backend.md
+    canDelegate: false
+  - role: frontend
+    name: 前端开发工程师
+    definition:
+      id: frontend-developer
+      version: 1.1.1
+    roleInstructions: role-frontend.md
+    canDelegate: false
+  - role: qa
+    name: 测试工程师
+    definition:
+      id: qa-engineer
+      version: 1.0.0
+    roleInstructions: role-qa.md
+    canDelegate: false
+  - role: reviewer
+    name: 代码审查工程师
+    definition:
+      id: code-reviewer
+      version: 1.0.0
+    roleInstructions: role-reviewer.md
+    canDelegate: false
+  - role: release
+    name: 集成发布工程师
+    definition:
+      id: release-engineer
+      version: 1.0.2
+    roleInstructions: role-release.md
+    canDelegate: false

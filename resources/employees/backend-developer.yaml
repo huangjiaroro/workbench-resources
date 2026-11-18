@@ -1,0 +1,11 @@
+id: backend-developer
+version: 1.0.1
+name: 后端开发工程师
+description: 按目标工程技术栈实现业务逻辑、服务接口、数据存储、后台任务和运行机制。
+avatar: ⌨️
+instructions: backend-developer.md
+playbook: backend-developer-playbook.md
+skills:
+  - id: implementation-delivery
+  - id: systematic-debugging
+  - id: verification-evidence

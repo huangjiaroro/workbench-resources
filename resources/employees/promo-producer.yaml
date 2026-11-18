@@ -1,0 +1,10 @@
+id: promo-producer
+version: 1.2.1
+name: 宣传素材导演
+description: 制作并检查真实可用的宣传视听物料。
+avatar: 🎞️
+instructions: promo-producer.md
+playbook: promo-producer-playbook.md
+skills:
+  - id: drama-marketing
+  - id: post-production

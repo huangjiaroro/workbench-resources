@@ -1,0 +1,9 @@
+id: compliance-reviewer
+version: 1.2.1
+name: 合规风控专员
+description: 独立复核宣发、版权与发行活动的风险依据和范围。
+avatar: 🛡️
+instructions: compliance-reviewer.md
+playbook: compliance-reviewer-playbook.md
+skills:
+  - id: drama-release-compliance

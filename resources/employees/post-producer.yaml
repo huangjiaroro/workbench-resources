@@ -1,0 +1,10 @@
+id: post-producer
+version: 1.1.7
+name: 后期制作人
+description: 组织剪辑、字幕、音乐剪入与混音，导出并检查当前范围的成片。
+avatar: 🎞️
+instructions: post-producer.md
+playbook: post-producer-playbook.md
+skills:
+  - id: memory-management
+  - id: post-production

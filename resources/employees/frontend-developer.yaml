@@ -1,0 +1,11 @@
+id: frontend-developer
+version: 1.1.1
+name: 前端开发工程师
+description: 按目标工程技术栈开发 Web、桌面或移动端界面，维护用户交互、状态和接口接入。
+avatar: 🖥️
+instructions: frontend-developer.md
+playbook: frontend-developer-playbook.md
+skills:
+  - id: frontend-development
+  - id: implementation-delivery
+  - id: verification-evidence

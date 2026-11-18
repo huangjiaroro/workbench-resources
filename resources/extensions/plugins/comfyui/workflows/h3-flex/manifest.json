@@ -1,0 +1,84 @@
+{
+  "id": "h3-flex",
+  "task_type": "video",
+  "min_images": 0,
+  "max_images": 9,
+  "min_videos": 0,
+  "max_videos": 1,
+  "defaults": {
+    "fixed_fps": 24,
+    "duration_seconds": 5,
+    "aspect_ratio": "16:9",
+    "megapixels": 0.98,
+    "multiple": 32,
+    "filename_prefix": "video/Pika_H3_Flex_REF2V",
+    "format": "auto",
+    "codec": "auto"
+  },
+  "input_bindings": {
+    "images": {
+      "slots": [
+        {"load_node": "137", "load_field": "image", "target_node": "136", "target_field": "ref_images.ref_image_0"},
+        {"load_node": "139", "load_field": "image", "target_node": "136", "target_field": "ref_images.ref_image_1"},
+        {"load_node": "201", "load_field": "image", "target_node": "136", "target_field": "ref_images.ref_image_2"},
+        {"load_node": "202", "load_field": "image", "target_node": "136", "target_field": "ref_images.ref_image_3"},
+        {"load_node": "203", "load_field": "image", "target_node": "136", "target_field": "ref_images.ref_image_4"},
+        {"load_node": "204", "load_field": "image", "target_node": "136", "target_field": "ref_images.ref_image_5"},
+        {"load_node": "205", "load_field": "image", "target_node": "136", "target_field": "ref_images.ref_image_6"},
+        {"load_node": "206", "load_field": "image", "target_node": "136", "target_field": "ref_images.ref_image_7"},
+        {"load_node": "207", "load_field": "image", "target_node": "136", "target_field": "ref_images.ref_image_8"}
+      ]
+    },
+    "videos": {
+      "required": false,
+      "slots": [
+        {
+          "load_node": "230",
+          "load_field": "file",
+          "load_output_index": 0,
+          "components_node": "231",
+          "components_field": "video",
+          "video_output_index": 0,
+          "audio_output_index": 1,
+          "video_target_node": "136",
+          "video_target_field": "ref_videos.ref_video_0",
+          "audio_target_node": "136",
+          "audio_target_field": "ref_video_audios.ref_video_audio_0"
+        }
+      ]
+    },
+    "audios": {
+      "required": false,
+      "slots": [
+        {"load_node": "220", "load_field": "audio", "ui_field": "audioUI", "target_node": "136", "target_field": "ref_audios.ref_audio_0"},
+        {"load_node": "221", "load_field": "audio", "ui_field": "audioUI", "target_node": "136", "target_field": "ref_audios.ref_audio_1"},
+        {"load_node": "222", "load_field": "audio", "ui_field": "audioUI", "target_node": "136", "target_field": "ref_audios.ref_audio_2"}
+      ]
+    },
+    "prompt": {"node": "138", "field": "value"},
+    "fps": {"node": "130", "field": "fps"},
+    "duration": {"node": "132", "field": "value"},
+    "resolution_selector": {
+      "node": "115",
+      "aspect_ratio_field": "aspect_ratio",
+      "megapixels_field": "megapixels",
+      "multiple_field": "multiple",
+      "aspect_ratio_values": {
+        "16:9": "16:9 (Widescreen)",
+        "9:16": "9:16 (Portrait Widescreen)",
+        "1:1": "1:1 (Square)",
+        "4:3": "4:3 (Standard)",
+        "3:4": "3:4 (Portrait Standard)"
+      }
+    },
+    "seed": {"node": "129", "field": "noise_seed"},
+    "filename_prefix": {"node": "92", "field": "filename_prefix"},
+    "format": {"node": "92", "field": "format"},
+    "codec": {"node": "92", "field": "codec"}
+  },
+  "output_expectations": {
+    "primary_kind": "video",
+    "node": "92",
+    "extensions": ["mp4"]
+  }
+}

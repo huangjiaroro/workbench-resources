@@ -1,0 +1,12 @@
+id: qa-engineer
+version: 1.0.0
+name: 测试工程师
+description: 设计并运行单元/集成/回归/E2E，复现缺陷并提供真实验证证据。
+avatar: 🧪
+instructions: qa-engineer.md
+playbook: qa-engineer-playbook.md
+skills:
+  - id: test-engineering
+  - id: browser-e2e
+  - id: systematic-debugging
+  - id: verification-evidence

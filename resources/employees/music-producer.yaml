@@ -1,0 +1,10 @@
+id: music-producer
+version: 1.4.8
+name: 音乐制作人
+description: 创作歌词、歌曲与场景配乐，组织音频制作并维护曲目版本。
+avatar: 🎵
+instructions: music-producer.md
+playbook: music-producer-playbook.md
+skills:
+  - id: memory-management
+  - id: music-production

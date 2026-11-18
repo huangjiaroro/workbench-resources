@@ -1,0 +1,67 @@
+{
+  "sourceRepository": "zero-point-ai",
+  "sourceCommit": "9d098cec2bda3aa7f4e2231d87e15922fd56975d",
+  "migration": "Reusable organizational methods; professional source skills and workbench contracts are separately identified in sources/upstream.json; see the human-facing CHANGELOG for changes.",
+  "files": [
+    {
+      "source": ".agents/agents/reviewer_worker.md",
+      "target": "resources/extensions/skills/drama-review/references/reviewer.md",
+      "sha256": "2009972660b499419b0123048a3f042fde2f9d8d83edce3a7ea7d830718cc47c"
+    },
+    {
+      "source": ".agents/references/review/story-unit.md",
+      "target": "resources/extensions/skills/drama-review/references/story-unit.md",
+      "sha256": "da219ba522726fa33c8011afe0880b50113ad24e94c27b974100bdf53d36d55f"
+    },
+    {
+      "source": ".agents/references/review/video.md",
+      "target": "resources/extensions/skills/drama-review/references/video.md",
+      "sha256": "0deaf97a072b0b90172663803529c93764e5d4494218d86283a12652e5dcba76"
+    },
+    {
+      "source": ".agents/references/review/music.md",
+      "target": "resources/extensions/skills/drama-review/references/music.md",
+      "sha256": "54d0e6c67ac1da7c0d4812db660675092d1b7ea6f074e8d550be3e627a19f569"
+    },
+    {
+      "source": ".agents/agents/research_worker.md",
+      "target": "resources/extensions/skills/drama-research/references/researcher.md",
+      "sha256": "6a171dae11575d33cb3a9904364a9315f8d8620c8237ec776305ada5741574cc"
+    },
+    {
+      "source": ".agents/references/research/audience-market.md",
+      "target": "resources/extensions/skills/drama-research/references/audience-market.md",
+      "sha256": "c1ca3a421325eabbb9755a58dc1a7ef175f1e6a33bbe01bb53bdb06fce31f2b4"
+    },
+    {
+      "source": ".agents/references/research/creative-story.md",
+      "target": "resources/extensions/skills/drama-research/references/creative-story.md",
+      "sha256": "cb35d6279b0ccfb50736d2f52ccd64294976fa265f41f2019ce657b10168a5a5"
+    },
+    {
+      "source": ".agents/references/research/factual-mechanisms.md",
+      "target": "resources/extensions/skills/drama-research/references/factual-mechanisms.md",
+      "sha256": "b118ad3e71314db2f4176970d3141a19d18e73765821aa6fc97262e04691f714"
+    },
+    {
+      "source": ".agents/references/research/audiovisual-expression.md",
+      "target": "resources/extensions/skills/drama-research/references/audiovisual-expression.md",
+      "sha256": "41e1eb4a29d6cc18090b4720529725229947409089d736185b43942ad87a0b80"
+    },
+    {
+      "source": ".agents/references/research/music.md",
+      "target": "resources/extensions/skills/drama-research/references/music.md",
+      "sha256": "63ec2c1df86006e26be3789e5f782a7ff772cb1dcab97855db43082180509bcd"
+    },
+    {
+      "source": ".agents/skills/asset-design/SKILL.md",
+      "target": "resources/extensions/skills/drama-production-planning/references/asset-design.md",
+      "sha256": "1f13b82cb1269aac0707b90ea65e48d18d8ef492fa66be25efe92bb782d6b9fc"
+    },
+    {
+      "source": ".agents/skills/screen-adaptation/SKILL.md",
+      "target": "resources/extensions/skills/drama-production-planning/references/screen-adaptation.md",
+      "sha256": "d2247c166bf6b5b3f392b55f44cc9d8bacaab880f90a325512be9a86e989a557"
+    }
+  ]
+}

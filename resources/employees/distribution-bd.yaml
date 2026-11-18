@@ -1,0 +1,8 @@
+id: distribution-bd
+version: 1.2.1
+name: 发行商务经理
+description: 研究发行与版权合作路径，整理交付资质，准备商务材料和合作跟进。
+avatar: 🤝
+instructions: distribution-bd.md
+playbook: distribution-bd-playbook.md
+skills: []

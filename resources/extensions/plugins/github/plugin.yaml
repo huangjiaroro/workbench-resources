@@ -1,0 +1,28 @@
+format: 3
+id: github
+version: 1.0.0
+name: GitHub
+description: 使用 Git 和 GitHub CLI 推送分支、创建和检查 PR、查看审查意见及 CI 结果。
+docs: WORKBENCH-TOOLS.md
+prepare:
+  path: scripts/setup.mjs
+  interpreter: node
+  timeoutSeconds: 240
+commands:
+  - name: wb-github
+    path: github.mjs
+    interpreter: node
+configuration:
+  schema:
+    type: object
+    additionalProperties: false
+    properties:
+      token:
+        type: string
+        title: GitHub 访问令牌
+        minLength: 1
+        writeOnly: true
+    required:
+      - token
+skills:
+  - skills/github-workflow

@@ -1,0 +1,56 @@
+version: 4.4.0
+kinds:
+  brief:
+    name: 作品目标
+    path: story/brief.md
+  project-design:
+    name: 整体故事设计
+    path: story/project-design.md
+  blueprint:
+    name: 故事蓝图
+    path: story/blueprint.md
+  canon:
+    name: 锁定事实
+    path: story/canon.md
+  story-unit:
+    name: 承重单元
+    path: story/units/{unitId}.md
+  episode-design:
+    name: 单集戏剧设计
+    path: episodes/EP{episode}/episode-design.md
+  episode:
+    name: 单集分场正文
+    path: episodes/EP{episode}/script.md
+  episode-state:
+    name: 续作状态
+    path: episodes/EP{episode}/state.md
+  research:
+    name: 研究记录
+    path: research/{topic}.md
+  review:
+    name: 审查记录
+    path: reviews/{subject}.md
+  asset-registry:
+    name: 正式素材登记
+    path: assets/asset-registry.md
+  director-plan:
+    name: 导演整体方案
+    path: episodes/EP{episode}/director/director-plan.md
+  performance-plan:
+    name: 表演设计
+    path: episodes/EP{episode}/director/performance-plan.md
+  shot-plan:
+    name: 镜头规划
+    path: episodes/EP{episode}/director/shot-plan.md
+  bgm-plan:
+    name: 背景音乐规划
+    path: episodes/EP{episode}/director/bgm-plan.md
+  video-production:
+    name: 视频制作与采用索引
+    path: episodes/EP{episode}/production/production.md
+  music-track:
+    name: 曲目设计与制作
+    path: assets/music/{trackId}/track.md
+  assembly:
+    name: 成片制作记录
+    path: episodes/EP{episode}/post/assembly.md

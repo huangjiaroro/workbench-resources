@@ -1,0 +1,8 @@
+id: monetization-manager
+version: 1.2.1
+name: 商业变现经理
+description: 规划版权分账、品牌合作、定制短剧、内容服务等收益路径并测算成本与利润。
+avatar: 💰
+instructions: monetization-manager.md
+playbook: monetization-manager-playbook.md
+skills: []

@@ -1,0 +1,10 @@
+import {cpSync} from 'node:fs';
+import {join} from 'node:path';
+import {execFileSync} from 'node:child_process';
+let input='';for await(const chunk of process.stdin)input+=chunk;
+const {packageRoot,targetRoot,runtimePaths}=JSON.parse(input);
+for(const file of ['mmx.mjs','dependencies'])cpSync(join(packageRoot,file),join(targetRoot,file),{recursive:true});
+const cli=join(targetRoot,'dependencies/mmx-cli/1.0.28/node_modules/mmx-cli/dist/mmx.mjs');
+const version=execFileSync(runtimePaths.node,[cli,'--version'],{encoding:'utf8',env:{PATH:process.env.PATH,HOME:targetRoot,MMX_CONFIG_DIR:join(targetRoot,'.verify')}}).trim();
+if(version!=='mmx 1.0.28')throw new Error('MiniMax CLI dependency version mismatch');
+console.log(version);

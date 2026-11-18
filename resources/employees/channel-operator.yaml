@@ -1,0 +1,9 @@
+id: channel-operator
+version: 1.2.1
+name: 渠道运营专员
+description: 根据授权执行账号内容排期、标题标签适配、发布和互动管理，并记录平台回执。
+avatar: 📣
+instructions: channel-operator.md
+playbook: channel-operator-playbook.md
+skills:
+  - id: drama-marketing

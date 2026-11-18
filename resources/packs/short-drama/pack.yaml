@@ -1,0 +1,76 @@
+id: short-drama
+version: 5.6.34
+workMode: projects
+name: 短剧创作组织
+playbook: playbook.md
+artifactContract: artifacts.yaml
+plugins:
+- id: pixel-studio
+- id: project-materials
+- id: minimax-cli
+- id: comfyui
+- id: media
+employees:
+- role: leader
+  name: 主创
+  definition:
+    id: project-lead
+    version: 1.4.12
+  roleInstructions: leader.md
+  canDelegate: true
+- role: writer
+  name: 编剧
+  definition:
+    id: screenwriter
+    version: 3.4.5
+  roleInstructions: writer.md
+  canDelegate: false
+- role: researcher
+  name: 创作研究员
+  definition:
+    id: creative-researcher
+    version: 1.4.3
+  roleInstructions: researcher.md
+  canDelegate: false
+- role: reviewer
+  name: 质量审查员
+  definition:
+    id: quality-reviewer
+    version: 2.4.8
+  roleInstructions: reviewer.md
+  canDelegate: false
+- role: visual
+  name: 视觉设计师
+  definition:
+    id: visual-designer
+    version: 1.2.9
+  roleInstructions: visual.md
+  canDelegate: false
+- role: director
+  name: 分镜导演
+  definition:
+    id: storyboard-director
+    version: 1.6.8
+  roleInstructions: director.md
+  canDelegate: false
+- role: video
+  name: AI 视频制作人
+  definition:
+    id: video-producer
+    version: 2.5.8
+  roleInstructions: video.md
+  canDelegate: false
+- role: music
+  name: 音乐制作人
+  definition:
+    id: music-producer
+    version: 1.4.8
+  roleInstructions: music.md
+  canDelegate: false
+- role: post
+  name: 后期制作人
+  definition:
+    id: post-producer
+    version: 1.1.7
+  roleInstructions: post.md
+  canDelegate: false

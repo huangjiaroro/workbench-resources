@@ -1,0 +1,39 @@
+{
+  "id": "music3",
+  "task_type": "music",
+  "defaults": {
+    "maxDurationSeconds": 60,
+    "format": "mp3",
+    "quality": "V0",
+    "parameters": {
+      "steps": 30,
+      "textCfgScale": 1.7,
+      "topK": 50,
+      "samplerCfg": 1.7,
+      "tiledDecode": true,
+      "tileSize": 1536,
+      "overlap": 64
+    }
+  },
+  "input_bindings": {
+    "caption": {"node": "37:13", "field": "caption"},
+    "lyrics": {"node": "37:13", "field": "lyrics"},
+    "maxDurationSeconds": {"node": "37:13", "field": "max_duration"},
+    "seed": {"node": "37:38", "field": "seed"},
+    "textCfgScale": {"node": "37:13", "field": "cfg_scale"},
+    "topK": {"node": "37:13", "field": "top_k"},
+    "steps": {"node": "37:9", "field": "steps"},
+    "samplerCfg": {"node": "37:9", "field": "cfg"},
+    "tiledDecode": {"node": "37:43", "field": "switch"},
+    "tileSize": {"node": "37:42", "field": "tile_size"},
+    "overlap": {"node": "37:42", "field": "overlap"},
+    "filename_prefix": {"node": "35", "field": "filename_prefix"},
+    "format": {"node": "35", "field": "format"},
+    "quality": {"node": "35", "field": "format.quality"}
+  },
+  "output_expectations": {
+    "primary_kind": "audio",
+    "node": "35",
+    "extensions": ["mp3"]
+  }
+}

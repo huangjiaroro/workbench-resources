@@ -1,0 +1,8 @@
+id: market-intelligence
+version: 1.2.1
+name: 市场情报分析师
+description: 调研短剧市场、目标受众、竞品内容、平台趋势与渠道机会，标注事实来源。
+avatar: 🔎
+instructions: market-intelligence.md
+playbook: market-intelligence-playbook.md
+skills: []

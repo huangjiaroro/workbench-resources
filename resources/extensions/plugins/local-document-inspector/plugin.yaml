@@ -1,0 +1,31 @@
+format: 3
+id: local-document-inspector
+version: 1.0.5
+name: 文档检查
+description: 检查获准 UTF-8 文档的版本与结构，渲染 Markdown 和 Mermaid 并保存准确检查结果。
+docs: WORKBENCH-TOOLS.md
+entrypoints:
+  - id: cli
+    path: workbench-cli.mjs
+    interpreter: node
+    description: 使用已准备的 wb-document 检查或渲染文档；参数与输出见本包说明。
+    args: []
+prepare:
+  path: setup.mjs
+  interpreter: node
+  timeoutSeconds: 600
+commands:
+  - name: wb-document
+    path: workbench-cli.mjs
+    interpreter: node
+dependencies: []
+configuration:
+  schema:
+    type: object
+    additionalProperties: false
+    properties: {}
+    required: []
+ui: []
+recommendedSkills: []
+skills:
+  - skills/document-review

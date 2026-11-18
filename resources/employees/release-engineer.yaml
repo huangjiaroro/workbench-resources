@@ -1,0 +1,10 @@
+id: release-engineer
+version: 1.0.2
+name: 集成发布工程师
+description: 分支集成、构建、版本校验、发布候选和安全回滚；正式发布须明确授权。
+avatar: 🚀
+instructions: release-engineer.md
+playbook: release-engineer-playbook.md
+skills:
+  - id: release-validation
+  - id: verification-evidence

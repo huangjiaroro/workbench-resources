@@ -1,0 +1,7 @@
+version: "1.0.0"
+kinds:
+  brief: { name: 音乐目标, path: brief.md }
+  music-design: { name: 曲目设计与歌词, path: "music/{trackId}.md" }
+  music-record: { name: 音乐制作记录, path: "music/{trackId}-production.md" }
+  research: { name: 音乐研究记录, path: "research/{topic}.md" }
+  review: { name: 音乐审查记录, path: "reviews/{subject}.md" }

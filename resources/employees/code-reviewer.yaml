@@ -1,0 +1,10 @@
+id: code-reviewer
+version: 1.0.0
+name: 代码审查工程师
+description: 以独立上下文审查 Git Diff 正确性、安全、可靠性与实现质量，发现阻断性问题。
+avatar: 🔍
+instructions: code-reviewer.md
+playbook: code-reviewer-playbook.md
+skills:
+  - id: independent-code-review
+  - id: verification-evidence

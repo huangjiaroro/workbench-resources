@@ -1,0 +1,40 @@
+{
+  "id": "h3-flex-fl",
+  "task_type": "video",
+  "generation_mode": "first_last_frame",
+  "defaults": {
+    "fixed_fps": 24,
+    "duration_seconds": 5,
+    "filename_prefix": "video/Pika_H3_Flex_FL2VA",
+    "format": "auto",
+    "codec": "auto"
+  },
+  "input_bindings": {
+    "first_frame": {
+      "load_node": "148",
+      "load_field": "image",
+      "target_node": "140:131",
+      "target_field": "first_frame",
+      "required": true
+    },
+    "last_frame": {
+      "load_node": "147",
+      "load_field": "image",
+      "target_node": "140:131",
+      "target_field": "last_frame",
+      "required": false
+    },
+    "prompt": {"node": "140:131", "field": "prompt"},
+    "fps": {"node": "140:130", "field": "fps"},
+    "duration": {"node": "140:133", "field": "value"},
+    "seed": {"node": "140:129", "field": "noise_seed"},
+    "filename_prefix": {"node": "92", "field": "filename_prefix"},
+    "format": {"node": "92", "field": "format"},
+    "codec": {"node": "92", "field": "codec"}
+  },
+  "output_expectations": {
+    "primary_kind": "video",
+    "node": "92",
+    "extensions": ["mp4"]
+  }
+}

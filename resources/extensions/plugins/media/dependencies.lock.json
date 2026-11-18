@@ -1,0 +1,37 @@
+{
+  "release": "b6.1.2-rc.1",
+  "platforms": {
+    "darwin-arm64": [
+      {
+        "name": "ffmpeg",
+        "url": "https://github.com/descriptinc/ffmpeg-ffprobe-static/releases/download/b6.1.2-rc.1/ffmpeg-darwin-arm64",
+        "bytes": 47078120,
+        "sha256": "9f865039102a1139c7057d7f21ddaacd106d602fa3af1f99b70f43d520439b8c",
+        "version": "6.1.1"
+      },
+      {
+        "name": "ffprobe",
+        "url": "https://github.com/descriptinc/ffmpeg-ffprobe-static/releases/download/b6.1.2-rc.1/ffprobe-darwin-arm64",
+        "bytes": 47037128,
+        "sha256": "05a26b32c32115785d48b01601e104712bbc6c2b1d363b9cf44c42232684e25e",
+        "version": "6.1.1"
+      }
+    ],
+    "win32-x64": [
+      {
+        "name": "ffmpeg",
+        "url": "https://github.com/descriptinc/ffmpeg-ffprobe-static/releases/download/b6.1.2-rc.1/ffmpeg-win32-x64",
+        "bytes": 126518784,
+        "sha256": "4b3a7a7c41a4064a8738536da6a304371c1fdc567c599ccb768bebd49ccdb9fb",
+        "version": "n6.1.2-9-g4571c80b40-20241023"
+      },
+      {
+        "name": "ffprobe",
+        "url": "https://github.com/descriptinc/ffmpeg-ffprobe-static/releases/download/b6.1.2-rc.1/ffprobe-win32-x64",
+        "bytes": 126382080,
+        "sha256": "c75d3ea9d6ab334ee2e90f15232af80aeac24d8a3185cd6ba19680acb8f43732",
+        "version": "n6.1.2-9-g4571c80b40-20241023"
+      }
+    ]
+  }
+}

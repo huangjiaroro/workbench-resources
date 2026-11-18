@@ -1,0 +1,17 @@
+{
+  "sourceArchive": "研发工程部-可编辑源码-v1.0.0.zip",
+  "sourceArchiveSha256": "b4a23cc6d13dfddf7c53520d12ed0d7dea5516bb7880c6fbc2ee8ec19383921f",
+  "sourceOrganizationVersion": "1.0.0",
+  "sourceDeclaredOrganizationDigest": "5c55e733bb15b93012cbc2ce9dad709cc07f321c383672b1827eddcb546adfbc",
+  "sourcePackId": "engineering-team",
+  "employees": [
+    "code-reviewer",
+    "backend-developer",
+    "engineering-lead",
+    "frontend-developer",
+    "qa-engineer",
+    "release-engineer",
+    "technical-researcher"
+  ],
+  "distributionIdentity": "Archive registry, publisher and payload digests are unverified provenance, not current Hub release declarations."
+}

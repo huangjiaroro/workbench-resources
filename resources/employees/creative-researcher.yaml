@@ -1,0 +1,11 @@
+id: creative-researcher
+version: 1.4.3
+name: 创作研究员
+description: 研究市场、创意、事实机制与视听表达，提供依据和可行方向。
+avatar: 🔎
+instructions: creative-researcher.md
+playbook: creative-researcher-playbook.md
+skills:
+  - id: memory-management
+  - id: drama-research
+  - id: story-ideation

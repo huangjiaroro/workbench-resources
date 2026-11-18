@@ -1,0 +1,81 @@
+id: drama-commercialization
+version: 2.0.4
+workMode: projects
+name: 短剧运营中心
+playbook: playbook.md
+artifactContract: artifacts.yaml
+plugins:
+  - id: media
+  - id: pixel-studio
+  - id: project-materials
+employees:
+  - role: leader
+    name: 商业化总监
+    definition:
+      id: commercial-lead
+      version: 1.2.1
+    roleInstructions: leader.md
+    canDelegate: true
+  - role: researcher
+    name: 市场情报分析师
+    definition:
+      id: market-intelligence
+      version: 1.2.1
+    roleInstructions: researcher.md
+    canDelegate: false
+  - role: strategist
+    name: 宣发策划师
+    definition:
+      id: promotion-strategist
+      version: 1.2.1
+    roleInstructions: strategist.md
+    canDelegate: false
+  - role: producer
+    name: 宣传素材导演
+    definition:
+      id: promo-producer
+      version: 1.2.1
+    roleInstructions: producer.md
+    canDelegate: false
+  - role: operator
+    name: 渠道运营专员
+    definition:
+      id: channel-operator
+      version: 1.2.1
+    roleInstructions: operator.md
+    canDelegate: false
+  - role: distribution
+    name: 发行商务经理
+    definition:
+      id: distribution-bd
+      version: 1.2.1
+    roleInstructions: distribution.md
+    canDelegate: false
+  - role: analytics
+    name: 数据增长分析师
+    definition:
+      id: growth-analyst
+      version: 1.2.1
+    roleInstructions: analytics.md
+    canDelegate: false
+  - role: ads
+    name: 广告投放优化师
+    definition:
+      id: ad-optimizer
+      version: 1.2.1
+    roleInstructions: ads.md
+    canDelegate: false
+  - role: monetization
+    name: 商业变现经理
+    definition:
+      id: monetization-manager
+      version: 1.2.1
+    roleInstructions: monetization.md
+    canDelegate: false
+  - role: compliance
+    name: 合规风控专员
+    definition:
+      id: compliance-reviewer
+      version: 1.2.1
+    roleInstructions: compliance.md
+    canDelegate: false

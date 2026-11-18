@@ -1,0 +1,49 @@
+format: 3
+id: minimax-cli
+version: 1.0.5
+name: MiniMax CLI
+description: 使用官方 mmx 提供视频、图片、语音、识图、搜索及文本能力。账号按连接隔离，结果统一归档。
+docs: WORKBENCH-TOOLS.md
+entrypoints:
+  - id: cli
+    path: mmx.mjs
+    interpreter: node
+    description: 通过已准备的原生命令执行，参数与输出见说明。
+    args: []
+prepare:
+  path: setup.mjs
+  interpreter: node
+  timeoutSeconds: 120
+commands:
+  - name: mmx
+    path: mmx.mjs
+    interpreter: node
+dependencies:
+  - id: mmx-cli
+    version: 1.0.28
+    entry: node_modules/mmx-cli/dist/mmx.mjs
+configuration:
+  schema:
+    type: object
+    additionalProperties: false
+    properties:
+      region:
+        type: string
+        title: 账号区域（cn 国内 / global 国际）
+        enum:
+          - cn
+          - global
+        default: cn
+      apiKey:
+        type: string
+        title: MiniMax API Key
+        minLength: 1
+        maxLength: 4096
+        writeOnly: true
+    required:
+      - region
+      - apiKey
+ui: []
+recommendedSkills: []
+skills:
+  - skills/minimax-operations

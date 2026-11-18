@@ -1,0 +1,29 @@
+version: 3.2.0
+kinds:
+  requirements:
+    name: 需求与验收边界
+    path: tasks/{taskId}/requirements.md
+  research:
+    name: 技术调研与候选证据
+    path: tasks/{taskId}/research/{topic}.md
+  architecture:
+    name: 技术方案与任务分解
+    path: tasks/{taskId}/design.md
+  implementation:
+    name: 实际代码变更及自测记录
+    path: tasks/{taskId}/changes/{component}.md
+  ui-preview:
+    name: 前端变更与交互证据
+    path: tasks/{taskId}/ui/{feature}.md
+  test-report:
+    name: 测试矩阵与运行结果
+    path: tasks/{taskId}/qa/report.md
+  review:
+    name: 独立代码审查报告
+    path: tasks/{taskId}/reviews/{rangeId}.md
+  release:
+    name: 集成构建与回滚记录
+    path: tasks/{taskId}/release/candidate.md
+  handoff:
+    name: 负责人最终交付说明
+    path: tasks/{taskId}/handoff.md
