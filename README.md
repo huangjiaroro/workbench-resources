@@ -14,3 +14,29 @@
 编写资源时参考应用项目的[员工、组织与技能编写规范](https://github.com/huangjiaroro/zero-point-workbench/blob/v1.0.0/resources/builtin/skills/workbench-resource-authoring/SKILL.md)和[插件包规范](https://github.com/huangjiaroro/zero-point-workbench/blob/v1.0.0/docs/plugin-packages.md)。字段类型、校验和加载行为以应用项目的[资源加载器](https://github.com/huangjiaroro/zero-point-workbench/tree/v1.0.0/packages/resource-loader/src)为准。
 
 Git 记录源码改动。正式分发沿用 Workbench Hub 的打包、验证和发布流程，用户在 Workbench 内安装所需版本。已创建的组织、用户定制、成员授权、连接值和任务历史保存在 Workbench 内。
+
+
+## 开发环境
+
+使用支持直接执行 TypeScript 的 Node.js 24 或更新版本。建议将本仓库与 `zero-point-workbench` 放在同一父目录，先在应用项目安装锁定依赖。其他目录布局可设置 `WORKBENCH_APP_ROOT` 为应用项目绝对路径。工具复用应用中的资源加载、分发格式及 Hub 客户端实现，格式验证以应用当前代码为准。
+
+所有以下命令在本资源仓库执行。插件完整包导出和涉及固定工具依赖的回归先执行 `pnpm prepare:plugins`，准备结果由 `.gitignore` 排除。
+
+| 命令 | 用途 |
+| --- | --- |
+| `pnpm prepare:plugins` | 准备插件源码声明的固定发布依赖 |
+| `pnpm export:plugins` | 导出 `dist/plugins` 下的完整插件包和索引 |
+| `pnpm export:skills` | 导出 `dist/skills` 下的完整技能包和索引 |
+| `pnpm bundle:pack --pack engineering-team` | 校验组织及其员工、技能依赖，生成源码集合与 ZIP |
+| `pnpm publish:pack --pack engineering-team --data-dir /绝对路径/工作台数据 --source-id 来源ID` | 使用指定 Workbench 连接执行资源发布和本地组织同步 |
+| `pnpm check:hub-sources --data-dir /绝对路径/工作台数据 --source-id 来源ID` | 只读比较扩展源码与 Hub 当前正式完整包 |
+| `pnpm check:docs` | 检查资源和维护说明的本地链接与标题引用 |
+
+发布、更新已有组织及真实服务调用按每次任务的明确授权执行。连接账号、秘密值、组织实例和采用计划由 Workbench 的持久化及宿主接口管理。
+
+## 组织维护
+
+- [短剧创作组织及已有实例更新](docs/short-drama.md)
+- [研发工程部的岗位、依赖和打包](docs/engineering-team.md)
+- [短剧运营中心的维护与打包](docs/drama-commercialization.md)
+- [导演方法参考来源](docs/director-method-archive/sources.md)

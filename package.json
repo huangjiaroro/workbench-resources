@@ -1,0 +1,17 @@
+{
+  "name": "workbench-resources",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "bundle:pack": "node scripts/gallery/bundle-pack.mjs",
+    "publish:pack": "node scripts/gallery/publish-pack.mjs",
+    "prepare:plugins": "node scripts/package/prepare-plugins.mjs",
+    "export:plugins": "node scripts/package/export-plugins.mjs",
+    "export:skills": "node scripts/package/export-skills.mjs",
+    "check:hub-sources": "node scripts/package/check-hub-sources.mjs",
+    "check:docs": "node scripts/maintenance/check-documentation.mjs"
+  }
+}
