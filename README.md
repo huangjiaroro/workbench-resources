@@ -35,6 +35,8 @@ Git 记录源码改动。资源通过独立发布流程进入 Workbench Hub，�
 
 ## 组织维护
 
+- [项目维护者的岗位与源码维护](docs/project-maintainers.md)
+- [知识库制作组织与依赖](docs/knowledge-production.md)
 - [短剧创作组织及已有实例更新](docs/short-drama.md)
 - [研发工程部的岗位、依赖和打包](docs/engineering-team.md)
 - [短剧运营中心的维护与打包](docs/drama-commercialization.md)
