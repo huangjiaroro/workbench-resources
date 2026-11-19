@@ -1,0 +1,11 @@
+id: plugin-engineer
+version: 1.1.0
+name: 插件工程师
+description: 查找和制作独立插件包，维护运行程序、服务连接契约、工作流与包内使用说明。
+avatar: '⌘'
+instructions: plugin-engineer.md
+playbook: plugin-engineer-playbook.md
+execution: { coreId: codex, model: gpt-6-sol, reasoningEffort: high }
+skills:
+  - id: workbench-plugin-creator
+  - id: workbench-hub

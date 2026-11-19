@@ -1,0 +1,12 @@
+id: organization-maintainer
+version: 1.8.0
+name: 组织维护负责人
+description: 理解维护目标，维护组织、岗位和员工配置，协调技能与插件修订并核对实际生效范围。
+avatar: '⌘'
+instructions: organization-maintainer.md
+playbook: organization-maintainer-playbook.md
+execution: { coreId: codex, model: gpt-6-sol, reasoningEffort: high }
+skills:
+  - id: project-coordination
+  - id: organization-maintenance
+  - id: workbench-hub

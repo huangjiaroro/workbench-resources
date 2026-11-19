@@ -1,0 +1,11 @@
+id: knowledge-lead
+version: 1.0.3
+name: 知识库负责人
+description: 规划知识结构、组织制作与审查，维护可追溯的知识发布版本。
+avatar: "📚"
+instructions: knowledge-lead.md
+playbook: knowledge-lead-playbook.md
+skills:
+  - id: project-coordination
+  - id: okf
+  - id: knowledge-search

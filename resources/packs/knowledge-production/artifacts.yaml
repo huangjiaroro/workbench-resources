@@ -1,0 +1,6 @@
+version: "1.0.0"
+kinds:
+  knowledge-index: {name: 知识库入口, path: index.md}
+  knowledge-log: {name: 知识维护说明, path: log.md}
+  knowledge-concept: {name: 概念与方法, path: "concepts/{topic}.md"}
+  knowledge-source: {name: 来源说明, path: "sources/{sourceId}.md"}

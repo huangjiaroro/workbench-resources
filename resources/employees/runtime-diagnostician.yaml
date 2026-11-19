@@ -1,0 +1,10 @@
+id: runtime-diagnostician
+version: 1.4.0
+name: 运行诊断员
+description: 依据获准的对话、任务、工具记录及配置，定位执行失败和协作问题。
+avatar: '⌕'
+instructions: runtime-diagnostician.md
+playbook: runtime-diagnostician-playbook.md
+execution: { coreId: codex, model: gpt-6-sol, reasoningEffort: high }
+skills:
+  - id: runtime-diagnosis

@@ -9,11 +9,11 @@
 | 插件 | [`resources/extensions/plugins/<id>/plugin.yaml`](resources/extensions/plugins/github/plugin.yaml) | 连接字段、命令入口、使用指引和插件自带技能。连接值与密钥由 Workbench 管理 |
 | 独立技能 | [`resources/extensions/skills/<id>/SKILL.md`](resources/extensions/skills/drama-writing/SKILL.md) | 技能标识、版本、方法和配套资料。需要声明能力时使用同目录的 `workbench.yaml` |
 
-随应用提供的内置资源和启动所需资源由 [Workbench 应用项目](https://github.com/huangjiaroro/zero-point-workbench/tree/v1.0.0/resources) 维护。这里的模板可以引用应用提供的内置能力。
+随应用提供的内置技能和插件由 [Workbench 应用项目](https://github.com/huangjiaroro/zero-point-workbench/tree/v1.0.0/resources) 维护。这里的模板可以引用应用提供的内置能力。
 
 编写资源时参考应用项目的[员工、组织与技能编写规范](https://github.com/huangjiaroro/zero-point-workbench/blob/v1.0.0/resources/builtin/skills/workbench-resource-authoring/SKILL.md)和[插件包规范](https://github.com/huangjiaroro/zero-point-workbench/blob/v1.0.0/docs/plugin-packages.md)。字段类型、校验和加载行为以应用项目的[资源加载器](https://github.com/huangjiaroro/zero-point-workbench/tree/v1.0.0/packages/resource-loader/src)为准。
 
-Git 记录源码改动。正式分发沿用 Workbench Hub 的打包、验证和发布流程，用户在 Workbench 内安装所需版本。已创建的组织、用户定制、成员授权、连接值和任务历史保存在 Workbench 内。
+Git 记录源码改动。资源通过独立发布流程进入 Workbench Hub，用户在 Workbench 内安装所需版本。Git 开发发布工具尚待实现，当前应用不提供草稿与发布后端。已创建的组织、用户定制、成员授权、连接值和任务历史保存在 Workbench 内。
 
 
 ## 开发环境
@@ -28,11 +28,10 @@ Git 记录源码改动。正式分发沿用 Workbench Hub 的打包、验证和�
 | `pnpm export:plugins` | 导出 `dist/plugins` 下的完整插件包和索引 |
 | `pnpm export:skills` | 导出 `dist/skills` 下的完整技能包和索引 |
 | `pnpm bundle:pack --pack engineering-team` | 校验组织及其员工、技能依赖，生成源码集合与 ZIP |
-| `pnpm publish:pack --pack engineering-team --data-dir /绝对路径/工作台数据 --source-id 来源ID` | 使用指定 Workbench 连接执行资源发布和本地组织同步 |
 | `pnpm check:hub-sources --data-dir /绝对路径/工作台数据 --source-id 来源ID` | 只读比较扩展源码与 Hub 当前正式完整包 |
 | `pnpm check:docs` | 检查资源和维护说明的本地链接与标题引用 |
 
-发布、更新已有组织及真实服务调用按每次任务的明确授权执行。连接账号、秘密值、组织实例和采用计划由 Workbench 的持久化及宿主接口管理。
+源码提交、正式发布、版本切换及真实服务调用按每次任务的明确授权执行。连接账号、秘密值、组织实例和采用计划由 Workbench 的持久化及宿主接口管理。
 
 ## 组织维护
 

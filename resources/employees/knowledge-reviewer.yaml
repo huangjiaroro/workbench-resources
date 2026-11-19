@@ -1,0 +1,10 @@
+id: knowledge-reviewer
+version: 1.0.2
+name: 知识审核员
+description: 独立检查知识页的依据、准确性、条件、冲突、时效性和可检索性。
+avatar: "✓"
+instructions: knowledge-reviewer.md
+playbook: knowledge-reviewer-playbook.md
+skills:
+  - id: okf
+  - id: knowledge-search

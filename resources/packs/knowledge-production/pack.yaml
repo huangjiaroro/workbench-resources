@@ -1,0 +1,21 @@
+id: knowledge-production
+version: 1.0.5
+name: 知识库制作
+workMode: projects
+playbook: playbook.md
+artifactContract: artifacts.yaml
+plugins:
+  - id: ollama-embeddings
+employees:
+  - role: leader
+    name: 知识库负责人
+    definition: { id: knowledge-lead, version: 1.0.3 }
+    canDelegate: true
+  - role: editor
+    name: 知识编辑
+    definition: { id: knowledge-editor, version: 1.0.2 }
+    canDelegate: false
+  - role: reviewer
+    name: 知识审核员
+    definition: { id: knowledge-reviewer, version: 1.0.2 }
+    canDelegate: false

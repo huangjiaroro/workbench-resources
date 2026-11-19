@@ -1,0 +1,10 @@
+id: knowledge-editor
+version: 1.0.2
+name: 知识编辑
+description: 从获准原件提炼概念与方法，保留依据、适用条件和知识之间的联系。
+avatar: "✎"
+instructions: knowledge-editor.md
+playbook: knowledge-editor-playbook.md
+skills:
+  - id: okf
+  - id: knowledge-search

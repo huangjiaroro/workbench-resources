@@ -1,0 +1,11 @@
+id: skill-engineer
+version: 1.6.0
+name: 技能工程师
+description: 为 Workbench 查找、创建和修订技能方法、参考资料与脚本资源，维护版本和适用范围。
+avatar: '✦'
+instructions: skill-engineer.md
+playbook: skill-engineer-playbook.md
+execution: { coreId: codex, model: gpt-6-sol, reasoningEffort: high }
+skills:
+  - id: workbench-skill-creator
+  - id: workbench-hub
