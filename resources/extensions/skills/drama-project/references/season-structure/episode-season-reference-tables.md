@@ -162,7 +162,7 @@ Douglas 的算术："如果一幕戏长 14 分钟，而每场戏约长 2 分钟�
 | The West Wing | 1999 | procedural / serial | NBC | teaser + 4 幕 | non-premise | Aaron Sorkin, John Wells |
 | The X-Files | 1993 | procedural | FOX | teaser + 4 幕 | premise | Chris Carter |
 
-**读表要点（都只看这张表就能得出）**：① **"无 act break"整列都是 HBO / Showtime / Netflix / PBS**，广播网与基础有线没有一部；② **六幕与七幕全在广播网与基础有线**（ABC 的 Grey's Anatomy / Once Upon a Time / Revenge / Scandal、TNT 的 Rizzoli & Isles、USA 的 Royal Pains）——2014 年的幕数膨胀是广告位现象；③ **multi-cam sitcom 三部格式完全一致**：cold open + 2 幕 + tag；④ **procedural 几乎全是 non-premise pilot**（CSI、Law & Order、NCIS、The West Wing），**premise pilot 集中在 serial**——只有两部标 hybrid（Damages、The Walking Dead）；⑤ pilot 类型一栏有 13 部未记载，查证需回到 系列故事引擎（`drama-project` 的 `references/series-engine/index.md`） 的 pilot 类型判据，**不要按 format 反推**。
+**读表要点（都只看这张表就能得出）**：① **"无 act break"整列都是 HBO / Showtime / Netflix / PBS**，广播网与基础有线没有一部；② **六幕与七幕全在广播网与基础有线**（ABC 的 Grey's Anatomy / Once Upon a Time / Revenge / Scandal、TNT 的 Rizzoli & Isles、USA 的 Royal Pains）——2014 年的幕数膨胀是广告位现象；③ **multi-cam sitcom 三部格式完全一致**：cold open + 2 幕 + tag；④ **procedural 几乎全是 non-premise pilot**（CSI、Law & Order、NCIS、The West Wing），**premise pilot 集中在 serial**——只有两部标 hybrid（Damages、The Walking Dead）；⑤ pilot 类型一栏有 13 部未记载，查证需回到 系列故事引擎（`drama-project` 的 `references/series-engine/craft.md`） 的 pilot 类型判据，**不要按 format 反推**。
 
 ### 11.2 Tip 13 正文的幕数抽样（Landau 1e p0199，2014 年口径）
 
@@ -245,7 +245,7 @@ Douglas 的算术："如果一幕戏长 14 分钟，而每场戏约长 2 分钟�
 | movement | movement（乐章） | 未记载 | 把一季拆成每 **4–6 集**一段、每段由一个可回答的问题驱动，答完再提新问题开始下一段（Katims 访谈，Landau 1e Tip 13 章内，p0193–0210；FNL S1 第一 movement 的问题是 "Will the town of Dillon survive the loss of Jason Street?"，在第 5 集的 rivalry game 结束）。 |
 | season arc / series arc | 季弧 / 剧弧 | **弧线**（ARC，中译 p0279：人物"从一种环境进入另一种不同戏剧状态的过程"） | 跨多集多季的连续故事线，含主要人物或群体的发展转变与一个大冲突的推进解决；Oberg 附一条反教条："There is a misguided rule that all characters need to have an arc"——sitcom 可以只有**关系弧**（Oberg glossary）。 |
 
-### 12.5 与引擎交界的四个词（本节只给结构用法，引擎判据见 系列故事引擎（`drama-project` 的 `references/series-engine/index.md`））
+### 12.5 与引擎交界的四个词（本节只给结构用法，引擎判据见 系列故事引擎（`drama-project` 的 `references/series-engine/craft.md`））
 
 | 英文术语 | 本 pack 用法 | 官方中译（严敏译本） | 一句话定义 |
 |---|---|---|---|

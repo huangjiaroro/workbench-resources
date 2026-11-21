@@ -4,7 +4,7 @@
 
 > **输出语言＝提问语言**；术语一律锚回原词，术语以原专业术语为准，不自创译名。
 
-场景是"戏剧最小表意单位"（陆军），也是"缩微故事"（麦基）。本方法 处理一场戏从选址到落笔的全部决定：**为什么在此时此地、押上什么价值、谁要什么用什么策略、节拍如何叠加到转折、道具和细节如何做功、悬念如何设置与延宕、如何进出场景**。分析范例与工具表见 [scene-analysis-casebook.md](examples/scene-analysis-casebook.md)；对白层面见对白方法（`drama-writing` 对白方法（`references/dialogue/index.md`））；全片结构见故事结构方法（`drama-project` 故事结构方法（`references/story-structure/index.md`））。
+场景是"戏剧最小表意单位"（陆军），也是"缩微故事"（麦基）。本方法 处理一场戏从选址到落笔的全部决定：**为什么在此时此地、押上什么价值、谁要什么用什么策略、节拍如何叠加到转折、道具和细节如何做功、悬念如何设置与延宕、如何进出场景**。分析范例与工具表见 [scene-analysis-casebook.md](examples/scene-analysis-casebook.md)；对白层面见对白方法（`drama-writing` 对白方法（`references/dialogue/craft.md`））；全片结构见故事结构方法（`drama-project` 故事结构方法（`references/story-structure/craft.md`））。
 
 ---
 

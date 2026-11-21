@@ -1,5 +1,5 @@
 id: short-drama
-version: 5.6.34
+version: 5.6.43
 workMode: projects
 name: 短剧创作组织
 playbook: playbook.md
@@ -22,7 +22,7 @@ employees:
   name: 编剧
   definition:
     id: screenwriter
-    version: 3.4.5
+    version: 3.4.8
   roleInstructions: writer.md
   canDelegate: false
 - role: researcher
@@ -50,14 +50,14 @@ employees:
   name: 分镜导演
   definition:
     id: storyboard-director
-    version: 1.6.8
+    version: 1.6.11
   roleInstructions: director.md
   canDelegate: false
 - role: video
   name: AI 视频制作人
   definition:
     id: video-producer
-    version: 2.5.8
+    version: 2.5.9
   roleInstructions: video.md
   canDelegate: false
 - role: music

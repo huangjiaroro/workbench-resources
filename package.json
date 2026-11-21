@@ -6,6 +6,8 @@
     "node": ">=24"
   },
   "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "sync:pack": "node scripts/gallery/sync-pack.mjs",
     "bundle:pack": "node scripts/gallery/bundle-pack.mjs",
     "prepare:plugins": "node scripts/package/prepare-plugins.mjs",
     "export:plugins": "node scripts/package/export-plugins.mjs",

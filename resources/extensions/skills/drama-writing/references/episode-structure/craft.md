@@ -10,7 +10,7 @@
 
 本 pack 用的英文术语、严敏中译本的官方译名与一句话定义的四列对照表见 [episode-structure-tables-and-cases.md](episode-structure-tables-and-cases.md) 第十二节（含 log line＝"计程绳"、staff writer＝"试用编剧"两处怪译，以及"晚进早出"与 enter late, leave early 同名反义的警告）。
 
-**不在本方法 里**：series engine / franchise / bible / pilot 类型与叙事作用 → `drama-project` 系列故事引擎；半小时喜剧的笑点与格式 → `drama-writing` 喜剧创作（`references/comedy/index.md`）；故事反馈的根因诊断与定点修订 → [单集返修资料](../revision-guidance.md)；国产剧集数体量与分集体系 → `story-ideation` 国产剧案例；逐集结构表全文 → `story-ideation` 剧集案例 / `story-ideation` 继承之战案例。媒介无关的工艺不重写：**场景价值转折见 `drama-writing` 场景创作，对白见 `drama-writing` 对白方法，三幕范式与情节点见 `drama-project` 故事结构。**
+**不在本方法 里**：series engine / franchise / bible / pilot 类型与叙事作用 → `drama-project` 系列故事引擎；半小时喜剧的笑点与格式 → `drama-writing` 喜剧创作（`references/comedy/craft.md`）；故事反馈的根因诊断与定点修订 → [单集返修资料](../revision-guidance.md)；国产剧集数体量与分集体系 → `story-ideation` 国产剧案例；逐集结构表全文 → `story-ideation` 剧集案例 / `story-ideation` 继承之战案例。媒介无关的工艺不重写：**场景价值转折见 `drama-writing` 场景创作，对白见 `drama-writing` 对白方法，三幕范式与情节点见 `drama-project` 故事结构。**
 ## 一、剧集结构与电影结构的根本差异
 
 - **更紧的形式，所以更难不是更容易。** Douglas 中译第 3 章（p0088）："电视剧本要求把所有同样的要素浓缩在更紧凑的形式中。"电影一场可 5–7 页，电视**一场目标 2 页**——"如果你一开始用 4 页纸写一次会面戏，那等于挂红旗"。
@@ -35,7 +35,7 @@
 页码锚点（Douglas 中译 p0090–0091，含 teaser 的四幕初稿）的四个页数与"每 13 至 15 分钟一次广告"的成因见 [episode-structure-tables-and-cases.md](episode-structure-tables-and-cases.md) 第二节。
 
 > ⚠️ **这些页码只在 48–63 页的美式一小时集内有效，不能按比例换算到国产 45 分钟集。** 两套切法的依据不同：美式按**页数与广告位**切幕，国产按**时段与片断**切（正片约 41.5 分钟，开场 3 分钟＋每 15 分钟一个小扣子＋集尾大关子）。写国产剧时本节只取媒介无关的部分（出幕类型学、一幕尾是"主角被推进没有退路"、Act Two break 改变故事性质、场结构五件套、赌注检验、信息管理四工具），时段与场面数改用 `story-ideation` 国产剧案例。
-> **半小时剧同样不适用**（30 分钟本约 30 页，幕数与场数都是另一套）：幕长、页码与场数见 `drama-writing` 喜剧创作（`references/comedy/index.md`） 第四节，**不要把本节的一小时数字缩放过去**。本节下面的诊断 4、5 两条只对美式一小时集有效。
+> **半小时剧同样不适用**（30 分钟本约 30 页，幕数与场数都是另一套）：幕长、页码与场数见 `drama-writing` 喜剧创作（`references/comedy/craft.md`） 第四节，**不要把本节的一小时数字缩放过去**。本节下面的诊断 4、5 两条只对美式一小时集有效。
 
 ### 2.2 场数：每幕 5–7 场，一集约 28 场
 

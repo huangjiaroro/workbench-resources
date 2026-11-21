@@ -14,7 +14,7 @@
 
 下载的 `short-drama-bundle-vX.Y.Z.zip` 是源码交付集合。组织、员工、技能分别映射到现有源码，核对新增、修改、删除和相对链接；它不是上传一次就更新全部资源的 Hub 组织包。
 
-使用 `pnpm bundle:pack --no-desktop` 从当前源码生成交付集合；构建先在临时目录校验组织、员工与技能，成功后替换 `dist/short-drama-bundle/` 并生成 ZIP。缺少源码依赖或结构不合法时停止并保留原目录，不沿用旧包内容。正式发布及已有实例更新使用下述宿主资源流程。
+使用 `pnpm bundle:pack --no-desktop` 从当前源码生成交付集合；构建先在临时目录校验组织、员工与技能，成功后替换 `dist/short-drama-bundle/` 并生成 ZIP。缺少源码依赖或结构不合法时停止并保留原目录，不沿用旧包内容。正式发布及已有实例更新见[一键同步](#一键同步)。
 
 源码组织版本、员工定义版本、技能开发版本、Hub 正式版本各自管理。例如下载包的 `v5.2.3` 不能用作判断 Hub 组织是否最新的依据；正式版本由 Hub 分配。回取核验正式完整包后按[应用资源约定](../README.md)同步扩展源码，不只手改版本号。
 
@@ -64,7 +64,7 @@
 
 主创与用户共创、定方向和委派。编剧完成单集设计、正文与 State 后自检，导演完成画面规划后自检，随后均由主创直接验收并决定采用。有具体问题需要独立专业判断或用户要求复核时，主创再委派质量审查员。原作者负责返修，主创验收修订。完整方法以[组织 PLAYBOOK](../resources/packs/short-drama/playbook.md)为准。
 
-工单与共同背景由[项目协作技能](https://github.com/huangjiaroro/zero-point-workbench/blob/v1.0.0/resources/builtin/skills/project-coordination/references/work-orders.md)维护必要上下文，具体专业方案交作者发展，保留用户决定与团队采用方案的真实来源。编剧的整体开发和单集阶段分别以 [drama-project](../resources/extensions/skills/drama-project/SKILL.md)、[drama-writing](../resources/extensions/skills/drama-writing/SKILL.md) 为准，导演总体、表演、镜头与 BGM 统一以 [director-planning](../resources/extensions/skills/director-planning/SKILL.md) 为准；各阶段默认先读取模块索引及所用方法的相关正文，已有准确且仍适用的方法依据按技能规则复用；不要求全包通读或逐场重读，阶段方法和设计深度不在工单复制。
+工单与共同背景由[项目协作技能](https://github.com/huangjiaroro/zero-point-workbench/blob/v1.0.0/resources/builtin/skills/project-coordination/references/work-orders.md)维护必要上下文，具体专业方案交作者发展，保留用户决定与团队采用方案的真实来源。编剧的整体开发和单集阶段分别以 [drama-project](../resources/extensions/skills/drama-project/SKILL.md)、[drama-writing](../resources/extensions/skills/drama-writing/SKILL.md) 为准，导演总体、表演、镜头与 BGM 统一以 [director-planning](../resources/extensions/skills/director-planning/SKILL.md) 为准；按各技能明确的阶段依赖、阅读及复用规则执行，不要求全包通读或逐场重读，阶段方法和设计深度不在工单复制。
 
 | 成果 | 负责人和用途 |
 | --- | --- |
@@ -76,37 +76,31 @@
 
 Shot 是连续摄影镜头，素材 Clip ID 属于视频制作人。导演按叙事与表演需要决定镜头边界，制作人按实际模型能力安排技术生成并独立索引；技术执行不修改已审定的导演设计，需要改变时交回导演修订。
 
-表演与素材兼容的相邻 Shot 优先合并生成，受组织制作长度和真实工具能力限制时再作技术拆分；具体长度要求见[技术视频分组与长度](../resources/packs/short-drama/playbook.md#技术视频分组与长度)。本组织出图优先员工原生能力，受限后使用获准插件，具体顺序见[制作插件选择](../resources/packs/short-drama/playbook.md#制作插件选择)。
+表演与素材兼容的相邻 Shot 优先合并生成，受组织制作长度和真实工具能力限制时再作技术拆分；具体长度要求见[导演、视频与后期交接](../resources/packs/short-drama/playbook.md#导演视频与后期交接)。本组织出图优先员工原生能力，受限后使用获准插件，具体顺序见[制作插件选择](../resources/packs/short-drama/playbook.md#制作插件选择)。
 
 本页只作沟通摘要，字段格式分别由 [导演 Shot 设计](../resources/extensions/skills/director-planning/assets/shot-plan-template.md)和[制作记录](../resources/extensions/skills/video-shot-generation/references/production/shot-execution.md)维护，不另建一套字段或审核阶段。
 
-## 修改、发布与升级
+## 一键同步
 
-先明确本次授权范围：“同步源码”“发布 Hub”“升级本机已有组织”是三个不同结果。用户已授权的步骤连续完成，回报时分别说明实际完成到哪一步。
+先启动 Workbench，在设置中确认原来的 Hub 来源已启用。准备该发布者的令牌文件，令牌须有 `read`、`upload`、`publish` 权限和相应包的授权。令牌文件留在仓库外，限制为当前用户可读。提供当前工作台数据目录、来源 ID 及现有组织实例 ID。
 
-```mermaid
-flowchart TD
-    A["核对源码、本机定制与原有 Hub 身份"] --> B["修改所属文件，检查完整包与引用"]
-    B --> C{"已授权发布 Hub？"}
-    C -->|否| D["交付源码及检查结果，说明尚未发布"]
-    C -->|是| E["发布变化的扩展技能或插件，回取核验正式包"]
-    E --> F["核对实际员工及准确能力引用，发布受影响的原员工模板"]
-    F --> G["核对组织实际配置及正式依赖，发布原组织模板"]
-    G --> H{"已授权升级本机？"}
-    H -->|否| I["交付准确发布身份、版本与依赖"]
-    H -->|是| J["安装准确依赖，准备已有组织采用计划"]
-    J --> K["处理差异后原位采用，复查身份、配置和内容"]
+```sh
+pnpm sync:pack --pack short-drama \
+  --data-dir /工作台数据目录 \
+  --source-id 来源ID \
+  --token-file /发布令牌文件 \
+  --instance-id 组织实例ID
 ```
 
-各步只处理确实变化或准确依赖受到影响的资源，不为整包版本变化重复发布所有技能与员工。发布顺序沿依赖：技能／插件 → 员工 → 组织；正式快照从实际员工、实际组织读取，不能只改仓库就宣称发布了新内容。原有资源继续使用上表中的正式标识；内置保护拒绝时核对选错的身份或来源，不修改保护规则来放行。
+如果所选来源已在 Workbench 保存为公网 HTTP 地址，运行时附加 `--allow-http`。这会通过明文 HTTP 发送发布令牌，预览也需要认证。脚本仍核对已保存的 Hub 实例标识和签名公钥。
 
-发布使用已有 Hub 工具和持久作业，固定来源、账号、源指纹、准确依赖和稳定操作号。准备、上传、正式发布、回取核验分别核对；网络超时或结果未知时查询原作业，继续其核验与同步，不换操作号重新提交。具体参数以 [Hub 技能](https://github.com/huangjiaroro/zero-point-workbench/blob/v1.0.0/resources/builtin/skills/workbench-hub/SKILL.md)为准，临时脚本不是长期操作入口。
+上面的命令预览需发布的包、线上基线和已有技能引用。核对后在同一条命令末尾加 `--apply`，执行发布、下载安装和原位切换。组织及员工模板默认分配补丁版本，需声明其他变更等级时用 `--release-type minor` 或 `--release-type major`。
 
-已有组织从组织广场选择“更新已有组织”，或使用 `prepare-adoption(kind: organization)` / `apply-adoption`。先安装目标模板及准确员工、技能、插件依赖，再读取完整差异计划。保留原组织、员工 ID、成员关系、名称、执行偏好、权限、连接、作品与历史；不以新建组织代替升级。缺失依赖先明确安装，本机定制冲突先整合；岗位或成员组合变化、共享员工等不满足当前采用条件时，按具体影响处理，不绕过校验。
+扩展技能按源码发布，内容一致的正式包复用。员工引用准确技能版本，组织引用准确员工版本。插件引用已有正式包，优先使用同一 Hub 的本机已安装版本。内置能力只写入引用。岗位权限、连接和用户执行配置由本机采用服务管理，源码清单中的默认引擎或模型不作为正式员工模板字段发布。
 
-技能和插件的全局当前版变化会影响其他引用者，采用前检查影响；模板安装本身不覆盖实际组织。发布成功也不等于所有用户的已有组织已升级。其他用户需要有相应采用能力的客户端，安装依赖并明确采用；客户端打包、发布与资源发布分别交付。
+新增资源确需首次发布时，核对标识后加 `--allow-new`。技能当前版切换可能影响其他员工，命令会列出引用并要求用 `--allow-global-switch` 明确允许组织外影响。组织岗位、成员或发布来源不符合当前原位升级条件时，Workbench 会拒绝切换。
 
-内置技能随应用交付：内容变化必须更新内置版本并走应用打包，不能用同一个不可变版本覆盖新内容，也不通过 Hub 同标识发布。只升级业务组织时，无需因此改动内置资源。
+Hub 和本机逐包提交，日志输出各包版本、摘要以及发布操作号。中断后先核对原发布回执及本机已应用的安装计划。再次运行时会复用相同内容的正式发布；线上基线在准备期间变化时会拒绝提交。文档和技能源码改动由 Git 管理，命令从当前工作目录的源码读取内容。
 
 ## 完成时核对与回报
 

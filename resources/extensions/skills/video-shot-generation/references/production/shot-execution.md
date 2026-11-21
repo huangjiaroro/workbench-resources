@@ -1,6 +1,6 @@
 # Production：Scene / Shot ↔ 技术 Clip 完成范围与来源索引
 
-唯一正式文件仍是组织 `video-production` 产物，即 `episodes/EP{episode}/production/production.md`。上部索引包括本轮要制作的**全部导演 Shot**（未生成也列出），按 Scene → Shot 顺序；一个 Clip 可映射连续多个 Shot，一个 Shot 也可对应多个技术 Clip。导演成果只读；对白原文及说话人按 Shot 定位从锁定 Script 取得，不修改导演文件或正文。
+唯一正式文件仍是组织 `video-production` 产物，即 `episodes/EP{episode}/production/production.md`。上部索引包括本轮要制作的**全部导演 Shot**（未生成也列出），按 Scene → Shot 顺序；一个 Clip 可映射连续多个 Shot，一个 Shot 也可对应多个技术 Clip。导演成果只读；从逐 P 表的 Shot ID 及衔接识别实际镜头，一个连续 Shot 在索引中登记一次，内部依各行自然时长与并行关系组装。由对应 P4 片段取得对白及说话人并对照锁定 Script，不修改导演文件或正文。
 
 ## 顶部：全范围覆盖索引
 

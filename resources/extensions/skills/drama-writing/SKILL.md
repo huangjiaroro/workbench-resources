@@ -2,80 +2,86 @@
 name: drama-writing
 description: 根据有效蓝图、设定、相关剧情单元与前集状态，创作或修订单集戏剧设计、正式分场剧本及续作状态时使用。
 metadata:
-  version: 1.0.7
+  version: 1.1.1
   display_name: 单集剧本创作
 ---
 
 # 单集剧本创作（Drama Writing）
 
-本技能负责**具体单集的戏剧设计、正式正文与续作状态**。组织正式产物为 `episode-design`、`episode` 和 `episode-state`，真实路径由当前产物契约（`project-contract.yaml`）解析。`episode-design` 随创作逐步形成并持续更新，向用户及相关员工共享，与正文及 State 一并交接，不增加独立审批。导演读取本集设计稿了解人物意图、潜台词与场景目的；真实剧情、对白和动作以有效 Script 为准。
+负责具体单集的戏剧设计、正式正文及续作状态。按当前产物契约（`project-contract.yaml`）定位 episode-design、episode、episode-state。导演从本集设计理解人物意图、潜台词和场景目的；剧情事实、动作与对白以有效 Script 为准。
 
-## 一、输入与决策边界
+## 执行规则
 
-读取本集实际相关的工单要求、Blueprint、Canon、Story Unit、前集有效 State 及必要正文。**用户已确认要求、授权范围内已采用的情节、名场面、真相和台词**不可为追求视频时长或新的创意而擅改；工单或设计中的候选建议保留其可取舍性质，采用后也不改称用户命令。编剧自主设计未锁定的具体行为、戏剧策略、对白、场景。研究素材只作为参考，缺失不阻塞正常写作；需要新构思时可按需调用共享的 `story-ideation`。
+首次单集创作按 **A → B → C** 执行；已有有效成果时从实际需要的阶段或步骤进入。
 
-如果有成熟的本集戏剧设计，直接复用并处理需要修改的部分，不从头设计；如果上游依据确实不足以支持本集重大情节，可在权限内定向补足，涉及用户锁定决定时交主创协调。
+1. 开始当前阶段，读取该阶段输入、产物模板及指定案例。确认采用的上游依据一致；不提前集中读取后续阶段或步骤的方法资料。
+2. **每一步是独立的执行单元：实际读取表中列明的必读方法正文与已保存的依赖结果，完成当前设计，通过独立文件写入或更新操作保存，再进入下一步。** 准确、仍适用且本轮上下文已读的方法可复用；熟悉理论名称或已有剧情摘要不等于完成方法读取或设计。
+3. 专题按实际问题触发，在相关设计前读取。局部修改可直接复用已成立的设计章节（明确对应位置、适用范围和有效前提），只更新受影响的直接依赖。不全库通读，不另交逐步文件或阅读日志；检查与诊断的工作结果记录于临时工作稿，置于正式产物目录之外。
+4. 检查步骤在待检查成果保存后独立回读、核对、修正和复查；不在一次生成中同时完成相依设计与其核验。首次单集创作，A 完成并保存后才写 B 的正文，B 核验及修订完成后才生成 C 的 State。内部关卡不增加独立审批。
 
-## 二、单集创作的成果依赖
+继承用户明确要求、已采用的故事决定、关键台词、真相及有效版本；未锁定细节由编剧自主设计。候选与研究参考不自动成为用户要求，缺失研究素材不阻塞正常写作。需要新创意可调用 `story-ideation`。上游不足以支撑重大情节时定向补足，涉及改变用户确认的决定交主创协调。
 
-```mermaid
-flowchart TD
-    W0["本集工单、有效 Blueprint/Canon/Story Unit、前集 State 与已有设计"] --> WX{"首次单集设计，还是复用与局部修订？"}
-    WX -->|首次单集设计| W1
-    WX -->|人物行动或主要对抗需修订| W1["W1 进入人物行动索引，设计目标、障碍与策略"]
-    WX -->|事件因果或转折需修订| W2["W2 进入单集结构索引，设计因果、转折与信息释放"]
-    WX -->|承重场景需设计| W3["W3 进入场景索引，设计行动、反制与进出状态"]
-    WX -->|对白与潜台词需设计| W4["W4 进入对白索引，设计语言行动与角色声音"]
-    WX -->|既有设计已足够| WR["复用已有设计，定点处理本轮任务"]
-    W1 --> W2
-    W2 --> W3
-    W3 --> W4
-    W4 --> WR
-    WR --> W5["W5 依据戏剧设计写作或修订 Script；同步 episode-design"]
-    W5 --> W6{"W6 核验事实、行动因果、场景与对白是否成立？"}
-    W6 -->|成立| W7["W7 按最终 Script 提炼/更新 EPxx/state.md"]
-    W7 --> WE["交付本轮所需成果"]
-    W6 -->|人物目标或行动不成立| W1
-    W6 -->|整体事件或转折不成立| W2
-    W6 -->|场景行动与反制问题| W3
-    W6 -->|对白与潜台词问题| W4
-    W2 -.关键人物选择需调整.-> W1
-    W3 -.场景推演暴露因果缺口.-> W2
-    W4 -.台词暴露场景目标不成立.-> W3
-```
+## A｜单集戏剧设计
 
-首次单集设计从 W1 开始，按 W1–W4 的成果依赖发展人物行动、事件结构、承重场景和对白，再在 W5 形成完整正文；这些设计可相互推演、动态回退。`episode-design.md` 随设计保存关键行动、因果和意图，正文成形时同步实际采用内容。
+**输入：** 本集工单、有效 Blueprint/Canon/相关 Story Unit、前集有效 State 与必要正文、已有本集设计。首集没有前集 State 时以有效故事起始条件为准。  
+**产物模板：** [episode-design](assets/episode-design-guidance.md)。  
+**阶段案例：** 首次单集设计必读[夜灯铺单集案例](examples/night-lamp-episode.md) 的 A 部分，理解如何将采用大纲落实为具体戏剧推进；B、C 示例在相应阶段读取。
 
-局部返修从受影响阶段进入；已有成果已解决本阶段的问题且前提未变时，直接复用。人物简介、情节节点和格式要求尚未回答的设计问题由编剧补足。各阶段不单独审批，共同维护一份单集设计稿；镜头和技术 Clip 由下游岗位设计。
-
-## 三、阶段内专业方法调度
-
-开始设计前读取[设计稿内容约定](assets/episode-design-guidance.md)，按 W1–W4 的设计依赖进入对应 `index.md`，读取适用的专业方法正文再开展设计。相邻阶段的相关资料可合并读取，案例、专题按问题选择，无需开工时通读全包。W5–W7 使用相应的正文格式、核验及状态指引。
-
-本轮或当前上下文已读过准确内容、仍掌握方法及适用边界，或已有设计保留了准确且仍适用的方法依据时，可直接复用。包内特有规则、用户约束和产物契约使用当前准确内容；仅熟悉题材或理论名称不构成复用依据，不确定时先读资料。同一依据无需逐场重读。
-
-将方法用于具体人物行动、场景攻防、事件因果和语言选择，必要取舍写入设计稿；完成情况按本轮设计问题及正文中的实际表现判断，不另交阅读日志或逐阶段报告。
-
-| 步骤 | 当前专业问题 | 资料入口及作用 | 成果归属 |
+| 步骤 | 前置依赖 | 必读方法 | 设计结果 |
 | --- | --- | --- | --- |
-| **W1 人物行动与冲突** | 本集谁想得到什么、用什么策略、谁反制、选择付出何种代价？ | [人物行动与冲突索引](references/character-action/index.md)：欲望、动机、行动选择、对手及冲突升级 | `episode-design.md`；正式 Script 的人物行动依据 |
-| **W2 单集结构** | 当前冲突如何形成开场、事件因果、主要转折、信息揭示与结尾？ | [单集结构索引](references/episode-structure/index.md)：因果、节拍、信息分配、转折及分集结构案例 | `episode-design.md`；正式 Script 的事件组织依据 |
-| **W3 场景设计** | 各承重场景的目标、障碍、具体反制与状态变化如何表演？ | [场景设计索引](references/scene-craft/index.md)：场景内部行动、策略、转折、空间与道具的戏剧用途 | `episode-design.md`；分场动作与转场 |
-| **W4 对白与潜台词** | 人物说话试图达成什么、如何攻防、语言差异及潜台词怎样成立？ | [对白与潜台词索引](references/dialogue/index.md)：语言行动、角色声音、潜台词与对白案例；喜剧任务可结合[喜剧索引](references/comedy/index.md) | `episode-design.md` 的意图；正式 Script 的台词与表演 |
-| **W5 正式正文** | 如何将已成立的事件和人物行动写成完整可演的单集？ | [正式剧本格式](assets/episode-script-format.md)是本组织原创单集正文的格式标准；[写作补充原则](references/writing-principles.md)供动作与表达问题参考 | `EPxx/script.md` |
-| **W6 剧本核验与修订** | 哪个环节导致人物、因果、场景、对白或上游事实冲突？ | [单集返修](references/revision-guidance.md)、[连续性](references/continuity-guidance.md)，并返回对应 W1–W4 专业索引定位根因 | 修订受影响的设计与 Script |
-| **W7 续作状态** | 本集实际发生了哪些需被后续集继承的事实与认知变化？ | [State 规范](assets/episode-state-guidance.md)、[连续性](references/continuity-guidance.md) | `EPxx/state.md` |
+| A1 人物行动与冲突 | 本集有效上游 | [人物行动与冲突方法](references/character-action/craft.md) | 各承重人物当前目标、动机、知情、障碍、策略、反制与选择代价 |
+| A2 单集结构 | A1、Blueprint 与前集 State | [单集结构方法](references/episode-structure/craft.md) | 本集进入处境、开场、事件因果、主要转折、信息释放、结尾及承接 |
+| A3 场景设计 | A1/A2 | [场景设计方法](references/scene-craft/craft.md) | 有序场景的进入状态、目标、具体行动与反制、戏剧变化、离开状态及关键空间物件 |
+| A4 对白与潜台词 | A1–A3 | [对白与潜台词方法](references/dialogue/craft.md) | 承重语言交锋的意图、策略、潜台词、角色声音及听者回应；重要原话及表达方向 |
+| A5 单集设计检查 | 已保存的 A1–A4、有效上游 | [单集返修](references/revision-guidance.md)、[连续性](references/continuity-guidance.md) | 核对行动、事件、场景、对白设计一致及上游事实成立，补齐实际设计缺口 |
 
-喜剧、荒诞与笑点问题由[喜剧专业索引](references/comedy/index.md)定位具体技法；构思出现根本分歧或需要新候选时，可调用独立 `story-ideation`。以上步骤都围绕同一份单集设计与正式正文，不按四个模块分别创建交付件。
+A1–A4 分别面向本集完整戏剧设计，在同一份 `episode-design.md` 中依次写入对应章节；每一步实际保存并结束当前写入操作后，下一步回读相关章节再继续。不一次性填完全部章节，不在写完剧本后倒补设计。A5 在后续独立操作中回读完整设计稿及有效依据，定位实际缺口，回对应步骤修正并同步受影响章节，再回读复查；无实质缺口时确认原设计。完成 A5 前设计稿尚未定稿。
 
-## 四、设计稿、正文和状态要求
+专项按实际问题触发，进入依赖它的设计前必读：
 
-- [episode-design 内容指南](assets/episode-design-guidance.md)：落实四类必备设计结果与完成判据；按真实戏剧组织表达，不提前写两遍完整对白。正文承重调整后同步相关部分。
-- [episode Script 正文规范](assets/episode-script-format.md)：写清完整场景、可表演的动作和对白、戏剧变化与结尾。人物动机、场景策略和潜台词用于**实际创作与表演依据**，不要在正文中加大段专业分析、导演机位或测试报告。
-- [episode State 内容规范](assets/episode-state-guidance.md)：**从最终版 Script 得到本集结束状态快照**，只记录续集真正要继承的事实、人物认知/误信、关系、承重道具与未解因果；它不是剧本总结或计划中但未发生的事件。
+- A1：复杂人物动机读[人物模型与心理学](references/character-action/character-models-and-psychology.md)；反制、升级及过渡读[冲突案例](references/character-action/examples/conflict-and-opponent-cases.md)；复杂人物核查可用[埃格里分析模板](references/character-action/templates/egri-play-analysis.md)。
+- A2：信息揭示、pilot、分幕、多线编织参考[单集结构表与案例](references/episode-structure/episode-structure-tables-and-cases.md)，历史电视页数、幕数按媒介适用性取舍。
+- A3：场景价值转折、行动反制、道具或悬念乏力时读[场景分析案例](references/scene-craft/examples/scene-analysis-casebook.md)。
+- A4：对白攻防、潜台词或角色差异问题读[对白冲突案例](references/dialogue/examples/dialogue-conflict-casebook.md)。
+- 喜剧、荒诞及笑点问题在实际相关的 A1–A4 步骤触发[喜剧方法](references/comedy/craft.md)，结合需要读取[喜剧框架与技法](references/comedy/comedy-frameworks-and-techniques.md)及[笑点案例](references/comedy/examples/comedy-jokes-and-fleabag-cases.md)；情境反差、铺垫与意外后果优先于固定笑点配额。
 
-续写或修订时参考 [连续性与上下文指引](references/continuity-guidance.md)；具体写作细节按需读 [写作补充原则](references/writing-principles.md)。同一任务已读且仍适用的资料无须反复读取。
+人物、结构、场景和语言设计互相校准；下游推演暴露前置问题时回对应步骤并同步受影响内容。对白设计明确语言行为，不提前写两遍完整正文。
 
-**阶段完成判据**：按设计稿约定逐项核对 W1–W4 的实际设计结果，缺失或只有概括标签时回相应方法补足；正式 Script 完整、可演、符合上游已确认决定并实际体现戏剧推进；State 来源于最终 Script 并与其一致。
+**阶段完成：** A5 读取实际保存的 A1–A4，核对模板判据并补足缺失，保存 `episode-design.md`。B 直接承接已完成的具体人物行动、事件及逐场设计。
 
-**资料导航**：各 `references/<module>/index.md` 描述对应专业问题、技法正文、原始理论、案例和模板的用途；已确认的有效工作依据可在本轮创作中继续沿用。
+## B｜正式剧本创作
+
+**输入：** 已完成并保存的 episode-design、有效上游、已有 Script（修订时）。  
+**产物标准：** [单集正文规范](assets/episode-script-format.md)。  
+**阶段案例：** 读取[夜灯铺单集案例](examples/night-lamp-episode.md) 的 B 部分，理解设计如何在实际可演正文中兑现。
+
+| 步骤 | 前置依赖 | 必读方法 | 设计结果 |
+| --- | --- | --- | --- |
+| B1 正文写作 | A 阶段实际保存成果 | [正式剧本格式](assets/episode-script-format.md)、[写作补充原则](references/writing-principles.md) | 完整分场动作、对白及戏剧结果，保存 `script.md` |
+| B2 剧本核验 | 已保存 Script、episode-design、有效上游 | [单集返修](references/revision-guidance.md)、[连续性](references/continuity-guidance.md) | 对实际正文检查人物策略、事件因果、场景攻防、对白表现、事实与承接，定位问题与影响 |
+| B3 正文修订与确认 | B2 核验结果 | 复用 B2 方法，按根因读取对应 A 步骤专业方法 | 修正实际问题、同步受影响设计，复核并保存最终 Script；无缺口时直接确认原版本 |
+
+B1–B3 分开执行：
+
+- B1 回读已完成的 A，写出本集完整可演正文，实际保存 `script.md`（尚未定稿）。
+- B2 在后续独立操作中回读已保存正文、单集设计及必要上游，逐场检查设计如何在动作、对白与后果中兑现。将实际发现的问题、原文位置、根因所在层和影响范围保存为临时诊断结果；未发现问题时记录所核对的关键情节与确认依据，不预写合格结论。
+- B3 回读 B2 已保存结果；有问题时按根因进入相应设计或正文修订，同步受影响内容并保存，再独立回读修订后的正文和受影响依据复查。若仍有实质问题，继续定向修订直至成立；无实质缺口时直接确认 B1 原版本，不机械改写。
+
+正文只写观众理解故事需要的可演动作、事件、分场及对白，不混入创作理论、自检记录、镜头参数或技术 Clip。用户明确的时长和体例属于创作约束，无明确要求时不预设时长。
+
+**阶段完成：** 读取实际最终 Script，确认已采用戏剧设计在正文中落实，所有已确认剧情、对白与事实得到继承；保存最终 `script.md` 和受影响的 episode-design，C 从该版本提取续作状态。
+
+## C｜续作状态
+
+**输入：** B 阶段已核验的最终 Script、有效 Canon、前集 State 及必要前情。  
+**产物标准：** [State 规范](assets/episode-state-guidance.md)。  
+**阶段案例：** 读取[夜灯铺单集案例](examples/night-lamp-episode.md) 的 C 部分，区分实际发生、人物所知和预期计划。
+
+| 步骤 | 前置依赖 | 必读方法 | 设计结果 |
+| --- | --- | --- | --- |
+| C1 状态提取 | 实际最终 Script 与有效前情 | [State 规范](assets/episode-state-guidance.md)、[连续性](references/continuity-guidance.md) | 已发生事实、人物认知或误信、关系及承重物件变化、未解事件，保存 `state.md` |
+| C2 状态检查 | 已保存 State、最终 Script、Canon、前集 State | [连续性](references/continuity-guidance.md)，复用 State 规范 | 确认状态来源、事实层次、前后继承及未确定结果均准确；必要时修正 |
+
+C1 回读 B 已确认的最终正文，独立提取并保存 State。C2 在后续独立操作中回读已保存 State，并与最终 Script、有效 Canon 和前集 State 对照，发现问题时修正并复查；无实质问题直接确认。不得在生成 State 的同一次操作中预写 C2 合格结论。
+
+**阶段完成：** 保存与最终正文一致的 `state.md`，与 episode-design、Script 一并交主创验收。正文修订后同步影响到的设计及 State，不用状态文件替代正文。镜头与实际媒体交下游岗位设计和制作。
