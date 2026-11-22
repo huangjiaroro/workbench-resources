@@ -4,7 +4,7 @@
 
 ## 完整导演方案审核
 
-读取准确版本锁定 Script、本集 `episode-design`、director-plan、performance-plan、shot-plan 及已完成的 bgm-plan；Canon、State 与资产按依赖补读。未完成 BGM 不阻塞画面审核，实际媒体无需先生成。
+读取准确版本锁定 Script、director-plan、performance-plan、shot-plan 及已完成的 bgm-plan；已有本集 `episode-design` 时据其核对戏剧意图，无则依据正文与导演方案核验。Canon、State 与资产按依赖补读。未完成 BGM 不阻塞画面审核，实际媒体无需先生成。
 
 - **剧本与表演覆盖**：原文剧情、对白原文及说话者、动作、揭示及必要反应是否转成可演过程；人物意图、可观察变化、并行/因果和状态是否成立，是否由 Shot 实际承载。不同合理表现可以成立，不因个人偏好重写。
 - **镜头与动态容量**：依据有效 Shot Plan 定向核对观看目的、切分理由、各 P 局部时间轴、同行发声估时依据及必要动作、静默和覆盖。逐段确认计划中的实际表演时间能容纳其完整内容；指出可定位的矛盾及影响，交导演修订。

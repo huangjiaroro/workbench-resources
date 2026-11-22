@@ -2,7 +2,7 @@
 name: visual-production
 description: 需要建立或补齐正式人物、服装、场景、道具的视觉素材，选择角色音色，或修订和登记已有资产时调用本技能。
 metadata:
-  version: 1.0.9
+  version: 1.1.0
   display_name: 视觉设计与素材
 ---
 
@@ -10,7 +10,7 @@ metadata:
 
 用于全剧基础建库、已采用单集的素材补缺及导演提出的正式设计需求。正式素材锁定稳定设计，剧情中的临时状态由导演描述与按当前用途确认的实际状态依据承接。
 
-先核对当前任务、已采用故事依据、现有 `asset-registry` 与真实媒体，再通过[视觉专业方法索引](references/index.md)选择本次需要的专业资料。正式/临时资产的判定以[资产原则](references/asset-principles.md)为准；成果写入组织规定的正式产物，绝不写回 Skill 模板。
+先核对当前任务、已采用故事依据、现有 `asset-registry` 与真实媒体，再通过[视觉专业方法索引](references/index.md)选择本次需要的专业资料。正式/临时资产的判定以[资产原则](references/asset-principles.md)为准；成果按组织产物契约登记。
 
 ## 实际工作流
 

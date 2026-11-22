@@ -2,6 +2,7 @@
   "id": "h3-flex-fl",
   "task_type": "video",
   "generation_mode": "first_last_frame",
+  "low_quality_short_edge": 480,
   "defaults": {
     "fixed_fps": 24,
     "duration_seconds": 5,
@@ -27,6 +28,7 @@
     "prompt": {"node": "140:131", "field": "prompt"},
     "fps": {"node": "140:130", "field": "fps"},
     "duration": {"node": "140:133", "field": "value"},
+    "video_short_edge": {"node": "140:155", "field": "value"},
     "seed": {"node": "140:129", "field": "noise_seed"},
     "filename_prefix": {"node": "92", "field": "filename_prefix"},
     "format": {"node": "92", "field": "format"},

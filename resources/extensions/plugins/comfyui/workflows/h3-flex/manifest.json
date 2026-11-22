@@ -1,6 +1,7 @@
 {
   "id": "h3-flex",
   "task_type": "video",
+  "low_quality_short_edge": 480,
   "min_images": 0,
   "max_images": 9,
   "min_videos": 0,

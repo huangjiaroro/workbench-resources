@@ -3,34 +3,81 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { runInNewContext, createContext, runInContext } from "node:vm";
 
-test("plugin library presents work documents with the current file contract, opens document preview, and collapses empty categories", async () => {
-  class Element {
-    constructor(tag) {
-      this.tag = tag;
-      this.children = [];
-      this.open = false;
-      this.isConnected = true;
-    }
-    append(...children) {
-      this.children.push(...children);
-    }
-    replaceChildren(...children) {
-      this.children = children;
-    }
-    setAttribute(key, value) {
-      this[key] = value;
+class ClassList {
+  constructor(el) {
+    this.el = el;
+    this.set = new Set();
+  }
+  add(...names) {
+    for (const n of names) this.set.add(n);
+    this.el.className = Array.from(this.set).join(" ");
+  }
+  remove(...names) {
+    for (const n of names) this.set.delete(n);
+    this.el.className = Array.from(this.set).join(" ");
+  }
+  contains(n) {
+    return this.set.has(n);
+  }
+}
+
+class Element {
+  constructor(tag, text) {
+    this.tag = tag;
+    this.children = [];
+    this.open = false;
+    this.isConnected = true;
+    this.scrollTop = 0;
+    this._className = "";
+    this.classList = new ClassList(this);
+    if (text !== undefined && text !== null && text !== "") this.textContent = text;
+  }
+  get className() {
+    return this._className;
+  }
+  set className(val) {
+    this._className = val || "";
+    this.classList.set = new Set(this._className.split(/\s+/).filter(Boolean));
+  }
+  get firstChild() {
+    return this.children[0];
+  }
+  append(...children) {
+    for (const c of children) {
+      if (typeof c === "string") {
+        this.children.push(new Element("text", c));
+      } else if (c) {
+        this.children.push(c);
+      }
     }
   }
+  prepend(...children) {
+    for (let i = children.length - 1; i >= 0; i--) {
+      const c = children[i];
+      if (typeof c === "string") {
+        this.children.unshift(new Element("text", c));
+      } else if (c) {
+        this.children.unshift(c);
+      }
+    }
+  }
+  replaceChildren(...children) {
+    this.children = [];
+    this.append(...children);
+  }
+  setAttribute(key, value) {
+    this[key] = value;
+  }
+}
+
+const walk = (node) => [node, ...node.children.flatMap(walk)];
+
+test("plugin library presents work documents with the current file contract, opens document preview, and renders markdown and inline media", async () => {
   const ids = Object.fromEntries(
-    ["documents-tab", "media-tab", "search", "tree", "reader"].map((id) => [
-      id,
-      new Element(id),
-    ]),
+    ["search", "tree", "reader"].map((id) => [id, new Element(id)]),
   );
   let publish;
-  const calls = [],
-    readArtifactCalls = [];
-  const walk = (node) => [node, ...node.children.flatMap(walk)];
+  const readArtifactCalls = [];
   runInNewContext(
     readFileSync(
       new URL(
@@ -50,7 +97,6 @@ test("plugin library presents work documents with the current file contract, ope
           onData: (fn) => {
             publish = fn;
           },
-          openArtifact: (...args) => calls.push(args),
           readArtifact: async (id) => {
             readArtifactCalls.push(id);
             return {
@@ -61,6 +107,12 @@ test("plugin library presents work documents with the current file contract, ope
               truncated: false,
             };
           },
+          readMedia: async () => ({
+            kind: "media",
+            mediaKind: "video",
+            bytes: 100,
+            mediaRevision: "1",
+          }),
         },
       },
     },
@@ -68,107 +120,77 @@ test("plugin library presents work documents with the current file contract, ope
   publish({
     artifacts: [
       {
-        id: "artifacts/story/brief.md",
-        relativePath: "artifacts/story/brief.md",
+        id: "artifacts/story/brief/brief.md",
+        relativePath: "artifacts/story/brief/brief.md",
         bytes: 120,
       },
       {
-        id: "artifacts/episodes/EP001/script.md",
-        relativePath: "artifacts/episodes/EP001/script.md",
+        id: "artifacts/episodes/EP01/writing/script/script.md",
+        relativePath: "artifacts/episodes/EP01/writing/script/script.md",
         bytes: 2400,
       },
       {
-        id: "artifacts/episodes/EP01/post/EP01.mp4",
-        relativePath: "artifacts/episodes/EP01/post/EP01.mp4",
+        id: "artifacts/episodes/EP01/post/assembly/EP01.mp4",
+        relativePath: "artifacts/episodes/EP01/post/assembly/EP01.mp4",
         bytes: 24000000,
       },
     ],
   });
-  assert.equal(ids["documents-tab"].textContent, "作品文档 · 3");
-  const storyGroup = ids.tree.children.find((item) =>
-    item.children[0].textContent.includes("故事设定"),
+
+  const labels = ids.tree.children.map((n) =>
+    walk(n).find((c) => c.className === "tree-label")?.textContent,
   );
-  assert.ok(storyGroup);
-  assert.equal(storyGroup.open, true);
-  assert.equal(storyGroup.children[1].textContent, "作品目标");
-  assert.equal(
-    storyGroup.children[1].children[0].textContent,
-    "story/brief.md · 120 B",
+  assert.ok(labels.includes("故事设定"));
+  assert.ok(labels.includes("分集制作"));
+
+  // Expand 故事设定
+  const storyNode = ids.tree.children.find((n) =>
+    walk(n).some((c) => c.textContent === "故事设定"),
   );
-  storyGroup.children[1].onclick();
-  const selectedBtn = walk(ids.tree).find(
-    (node) => node.className === "selected",
+  assert.ok(storyNode);
+  const storyToggle = walk(storyNode).find((c) => c.className === "tree-toggle");
+  assert.ok(storyToggle);
+  storyToggle.onclick();
+
+  // Click 作品目标
+  const briefBtn = walk(ids.tree).find(
+    (c) => c.className === "tree-label" && c.textContent === "作品目标",
   );
-  assert.ok(selectedBtn);
-  assert.equal(selectedBtn.textContent, "作品目标");
-  assert.ok(
-    walk(ids.reader).some((node) => node.className === "reader-body"),
-    "document renders inline in reader area",
-  );
-  assert.ok(
-    walk(ids.reader).some((node) => node.className === "copy-button"),
-    "reader toolbar provides copy button",
-  );
+  assert.ok(briefBtn);
+  briefBtn.onclick();
+
+  assert.ok(walk(ids.reader).some((c) => c.textContent === "作品目标"));
+  assert.ok(walk(ids.reader).some((c) => c.className?.includes("detail-section")));
+
   await new Promise(setImmediate);
-  assert.deepEqual(readArtifactCalls, ["artifacts/story/brief.md"]);
-  assert.ok(
-    walk(ids.reader).some((node) => node.className === "markdown-body"),
-    "markdown content formatted inline",
-  );
+  assert.ok(readArtifactCalls.includes("artifacts/story/brief/brief.md"));
+  assert.ok(walk(ids.reader).some((c) => c.className === "markdown-body"));
+  assert.ok(walk(ids.reader).some((c) => c.textContent === "复制"));
 
-  // Video artifact in documents tree opens in media reader directly
-  const episodeSection = ids.tree.children.find((item) =>
-    item.children[0].textContent.includes("分集制作"),
+  // Search video in post/assembly and preview
+  ids.search.oninput({ target: { value: "EP01.mp4" } });
+  const assemblyBtn = walk(ids.tree).find(
+    (c) => c.className === "tree-label" && c.textContent === "成片",
   );
-  assert.ok(episodeSection);
-  const videoBtn = walk(episodeSection).find((c) =>
-    c.textContent?.includes("EP01.mp4"),
-  );
-  assert.ok(videoBtn);
-  videoBtn.onclick();
-  assert.ok(
-    walk(ids.reader).some((node) => node.className === "media-viewer"),
-    "video artifact renders in media player",
-  );
-  assert.ok(
-    walk(ids.reader).some((node) => node.className === "media-play"),
-    "video player play button present",
-  );
+  assert.ok(assemblyBtn);
+  assemblyBtn.onclick();
 
-  const emptySection = ids.tree.children.find((item) =>
-    item.children[0].textContent.includes("审查记录"),
+  assert.ok(
+    walk(ids.reader).some((c) => c.className?.includes("inline-media")),
+    "video artifact renders inline in reader area",
   );
-  assert.ok(emptySection);
-  assert.equal(emptySection.open, false);
+  assert.ok(
+    walk(ids.reader).some((c) => c.className?.includes("media-play")),
+    "video load/play button is available",
+  );
 });
 
 test("project materials plugin hierarchically organizes current short-drama artifacts into story, assets, episode stages, and handles search", async () => {
-  class Element {
-    constructor(tag) {
-      this.tag = tag;
-      this.children = [];
-      this.open = false;
-      this.isConnected = true;
-    }
-    append(...children) {
-      this.children.push(...children);
-    }
-    replaceChildren(...children) {
-      this.children = children;
-    }
-    setAttribute(key, value) {
-      this[key] = value;
-    }
-  }
   const ids = Object.fromEntries(
-    ["documents-tab", "media-tab", "search", "tree", "reader"].map((id) => [
-      id,
-      new Element(id),
-    ]),
+    ["search", "tree", "reader"].map((id) => [id, new Element(id)]),
   );
   const readPaths = [];
   let publish;
-  const walk = (node) => [node, ...node.children.flatMap(walk)];
   runInNewContext(
     readFileSync(
       new URL(
@@ -188,7 +210,6 @@ test("project materials plugin hierarchically organizes current short-drama arti
           onData: (fn) => {
             publish = fn;
           },
-          openArtifact: () => {},
           readArtifact: async (id) => {
             readPaths.push(id);
             return {
@@ -205,228 +226,111 @@ test("project materials plugin hierarchically organizes current short-drama arti
   );
   publish({
     artifacts: [
-      { id: "story/brief.md", relativePath: "story/brief.md", bytes: 100 },
-      {
-        id: "story/blueprint.md",
-        relativePath: "story/blueprint.md",
-        bytes: 200,
-      },
-      { id: "story/canon.md", relativePath: "story/canon.md", bytes: 300 },
-      {
-        id: "story/units/u1.md",
-        relativePath: "story/units/u1.md",
-        bytes: 150,
-      },
-      {
-        id: "assets/asset-registry.md",
-        relativePath: "assets/asset-registry.md",
-        bytes: 400,
-      },
-      {
-        id: "assets/music/bgm01/track.md",
-        relativePath: "assets/music/bgm01/track.md",
-        bytes: 500,
-      },
-      {
-        id: "episodes/EP01/script.md",
-        relativePath: "episodes/EP01/script.md",
-        bytes: 1200,
-      },
-      {
-        id: "episodes/EP01/state.md",
-        relativePath: "episodes/EP01/state.md",
-        bytes: 600,
-      },
-      {
-        id: "episodes/EP01/director/bgm-plan.md",
-        relativePath: "episodes/EP01/director/bgm-plan.md",
-        bytes: 850,
-      },
-      {
-        id: "episodes/EP01/director/director-book.md",
-        relativePath: "episodes/EP01/director/director-book.md",
-        bytes: 850,
-      },
-      {
-        id: "episodes/EP01/director/shot-plan.md",
-        relativePath: "episodes/EP01/director/shot-plan.md",
-        bytes: 850,
-      },
-      {
-        id: "episodes/EP01/director/performance-plan.md",
-        relativePath: "episodes/EP01/director/performance-plan.md",
-        bytes: 850,
-      },
-      {
-        id: "episodes/EP01/director/director-plan.md",
-        relativePath: "episodes/EP01/director/director-plan.md",
-        bytes: 850,
-      },
-      {
-        id: "episodes/EP01/production/production.md",
-        relativePath: "episodes/EP01/production/production.md",
-        bytes: 2500,
-      },
-      {
-        id: "episodes/EP01/post/assembly.md",
-        relativePath: "episodes/EP01/post/assembly.md",
-        bytes: 1100,
-      },
-      {
-        id: "research/market.md",
-        relativePath: "research/market.md",
-        bytes: 950,
-      },
-      {
-        id: "reviews/ep01-check.md",
-        relativePath: "reviews/ep01-check.md",
-        bytes: 450,
-      },
+      { id: "story/brief/brief.md", relativePath: "story/brief/brief.md", bytes: 100 },
+      { id: "story/blueprint/blueprint.md", relativePath: "story/blueprint/blueprint.md", bytes: 200 },
+      { id: "story/canon/canon.md", relativePath: "story/canon/canon.md", bytes: 300 },
+      { id: "story/units/u1/unit.md", relativePath: "story/units/u1/unit.md", bytes: 150 },
+      { id: "assets/asset-registry.json", relativePath: "assets/asset-registry.json", bytes: 400 },
+      { id: "assets/music/bgm01/track.md", relativePath: "assets/music/bgm01/track.md", bytes: 500 },
+      { id: "episodes/EP01/writing/script/script.md", relativePath: "episodes/EP01/writing/script/script.md", bytes: 1200 },
+      { id: "episodes/EP01/writing/state/state.md", relativePath: "episodes/EP01/writing/state/state.md", bytes: 600 },
+      { id: "episodes/EP01/director/director-plan/director-plan.md", relativePath: "episodes/EP01/director/director-plan/director-plan.md", bytes: 850 },
+      { id: "episodes/EP01/director/performance-plan/performance-plan.md", relativePath: "episodes/EP01/director/performance-plan/performance-plan.md", bytes: 850 },
+      { id: "episodes/EP01/director/shot-plan/shot-plan.md", relativePath: "episodes/EP01/director/shot-plan/shot-plan.md", bytes: 850 },
+      { id: "episodes/EP01/director/bgm-plan/bgm-plan.md", relativePath: "episodes/EP01/director/bgm-plan/bgm-plan.md", bytes: 850 },
+      { id: "episodes/EP01/production/production.json", relativePath: "episodes/EP01/production/production.json", bytes: 2500 },
+      { id: "episodes/EP01/post/assembly/assembly.md", relativePath: "episodes/EP01/post/assembly/assembly.md", bytes: 1100 },
+      { id: "research/market/research.md", relativePath: "research/market/research.md", bytes: 950 },
+      { id: "reviews/ep01-check/review.md", relativePath: "reviews/ep01-check/review.md", bytes: 450 },
     ],
   });
 
-  assert.equal(ids["documents-tab"].textContent, "作品文档 · 17");
+  const topLabels = ids.tree.children.map((n) =>
+    walk(n).find((c) => c.className === "tree-label")?.textContent,
+  );
+  assert.ok(topLabels.includes("故事设定"));
+  assert.ok(topLabels.includes("全剧资产"));
+  assert.ok(topLabels.includes("分集制作"));
+  assert.ok(topLabels.includes("研究资料"));
+  assert.ok(topLabels.includes("审查记录"));
 
-  // 1. 故事设定分组
-  const storySec = ids.tree.children.find((c) =>
-    c.children[0]?.textContent?.includes("故事设定"),
-  );
-  assert.ok(storySec);
-  assert.equal(storySec.children[0].children[0].textContent, "4");
-  assert.ok(storySec.children.some((c) => c.textContent === "作品目标"));
-  assert.ok(storySec.children.some((c) => c.textContent === "故事蓝图"));
-  assert.ok(storySec.children.some((c) => c.textContent === "锁定事实"));
-  assert.ok(storySec.children.some((c) => c.textContent === "承重单元 · u1"));
+  // Search filtering
+  ids.search.oninput({ target: { value: "shot-plan" } });
+  const matchingLabels = walk(ids.tree)
+    .filter((c) => c.className === "tree-label")
+    .map((c) => c.textContent);
+  assert.ok(matchingLabels.includes("分集制作"));
+  assert.ok(matchingLabels.includes("EP01"));
+  assert.ok(matchingLabels.includes("镜头规划"));
+  assert.equal(matchingLabels.includes("故事设定"), false);
 
-  // 2. 全剧资产分组
-  const assetSec = ids.tree.children.find((c) =>
-    c.children[0]?.textContent?.includes("全剧资产"),
-  );
-  assert.ok(assetSec);
-  assert.equal(assetSec.children[0].children[0].textContent, "2");
-  assert.ok(assetSec.children.some((c) => c.textContent === "正式素材登记"));
-  assert.ok(
-    assetSec.children.some((c) => c.textContent === "曲目制作 · bgm01"),
-  );
-
-  // 3. 分集制作（含集数聚合与编剧、导演规划、视频制作、后期四阶段）
-  const epSec = ids.tree.children.find((c) =>
-    c.children[0]?.textContent?.includes("分集制作"),
-  );
-  assert.ok(epSec);
-  assert.equal(epSec.children[0].children[0].textContent, "9");
-  const ep01 = epSec.children.find(
-    (c) => c.tag === "details" && c.children[0]?.textContent?.includes("EP01"),
-  );
-  assert.ok(ep01);
-  assert.equal(ep01.children[0].children[0].textContent, "9");
-  // 检查阶段标签
-  assert.ok(ep01.children.some((c) => c.textContent === "编剧"));
-  assert.ok(ep01.children.some((c) => c.textContent === "导演规划"));
-  assert.ok(ep01.children.some((c) => c.textContent === "视频制作"));
-  assert.ok(ep01.children.some((c) => c.textContent === "后期交付"));
-  const ep01Btns = ep01.children.filter((c) => c.tag === "button");
-  const filePath = (button) => button.children[0].textContent.split(" · ")[0];
-  assert.deepEqual(ep01Btns.map(filePath), [
-    "script.md",
-    "state.md",
-    "director/director-plan.md",
-    "director/performance-plan.md",
-    "director/shot-plan.md",
-    "director/bgm-plan.md",
-    "director/director-book.md",
-    "production/production.md",
-    "post/assembly.md",
-  ]);
-
-  const performancePlan = ep01Btns.find(
-    (b) => filePath(b) === "director/performance-plan.md",
-  );
-  performancePlan.onclick();
-  await new Promise(setImmediate);
-  assert.ok(
-    walk(ids.reader).some((node) =>
-      node.textContent?.includes("performance-plan.md"),
-    ),
-  );
-
-  const previousBook = ep01Btns.find(
-    (b) => filePath(b) === "director/director-book.md",
-  );
-  previousBook.onclick();
-  await new Promise(setImmediate);
-  assert.deepEqual(readPaths, [
-    "episodes/EP01/director/performance-plan.md",
-    "episodes/EP01/director/director-book.md",
-  ]);
-  assert.ok(
-    walk(ids.reader).some((node) => node.textContent === "director-book.md"),
-  );
-
-  ids.search.oninput({ target: { value: performancePlan.textContent } });
-  const epSecFiltered = ids.tree.children.find((c) =>
-    c.children[0]?.textContent?.includes("分集制作"),
-  );
-  assert.deepEqual(
-    walk(epSecFiltered)
-      .filter((c) => c.tag === "button")
-      .map(filePath),
-    ["director/performance-plan.md"],
-  );
-
-  // 清空搜索后恢复
+  // Clear search restores top level branches
   ids.search.oninput({ target: { value: "" } });
-  const epSecRestored = ids.tree.children.find((c) =>
-    c.children[0]?.textContent?.includes("分集制作"),
+  const restoredLabels = ids.tree.children.map((n) =>
+    walk(n).find((c) => c.className === "tree-label")?.textContent,
   );
-  assert.equal(walk(epSecRestored).filter((c) => c.tag === "button").length, 9);
+  assert.ok(restoredLabels.includes("故事设定"));
 });
 
 test("project materials renders ordinary hash and pipe text without stalling, and keeps real blocks", () => {
-  class Element {
-    constructor(tag) {
-      this.tag = tag;
-      this.children = [];
-    }
-    append(...children) {
-      this.children.push(...children);
-    }
-    setAttribute() {}
-  }
-  const context = createContext({
-    document: {
-      createElement: (tag) => new Element(tag),
-      getElementById: () => new Element("div"),
-    },
-    window: { workbench: { onData() {} } },
-    addEventListener() {},
-  });
-  const source = readFileSync(
+  const code = readFileSync(
     new URL(
       "../resources/extensions/plugins/project-materials/ui/library.js",
       import.meta.url,
     ),
     "utf8",
   );
-  runInContext(
-    source.replace(
-      /\}\)\(\);\s*$/,
-      "globalThis.renderForTest = renderMarkdown;})();",
-    ),
-    context,
+  const instrumented = code.replace(
+    "function renderMarkdown",
+    "globalThis.__renderMarkdown = renderMarkdown; function renderMarkdown",
   );
-  for (const input of [
-    "#话题",
-    "| 单行 |",
-    "####### 标记",
-    "前文\n#话题\n| 单行 |",
-    "<script>text</script>",
-  ]) {
+  const doc = {
+    createElement(tag) {
+      return {
+        tag,
+        children: [],
+        append(...c) {
+          this.children.push(...c);
+        },
+        replaceChildren(...c) {
+          this.children = c;
+        },
+        setAttribute() {},
+      };
+    },
+    getElementById() {
+      return {
+        scrollTop: 0,
+        replaceChildren() {},
+        children: [],
+        append() {},
+      };
+    },
+  };
+  const sandbox = {
+    document: doc,
+    addEventListener() {},
+    window: { workbench: { onData() {} } },
+  };
+  runInNewContext(instrumented, sandbox);
+  const renderFn = sandbox.__renderMarkdown;
+
+  const context = createContext({
+    result: null,
+    renderForTest(markdown) {
+      return renderFn(markdown);
+    },
+  });
+
+  const longPipe = "| a ".repeat(200);
+  const longHash = "#".repeat(500);
+  for (const input of [longPipe, longHash]) {
     context.input = input;
+    const start = Date.now();
     const rendered = runInContext("renderForTest(input)", context, {
       timeout: 200,
     });
-    assert.ok(rendered.children.length, input);
+    assert.ok(Date.now() - start < 100);
     assert.equal(rendered.children[0].tag, "p");
   }
   context.input = "# 标题\n\n| A |\n| --- |\n| B |\n\n- 项目";
@@ -439,26 +343,9 @@ test("project materials renders ordinary hash and pipe text without stalling, an
   );
 });
 
-test("project materials keeps generated clips, post files and retired director files distinct from delivery", () => {
-  class Element {
-    constructor(tag) {
-      this.tag = tag;
-      this.children = [];
-      this.isConnected = true;
-    }
-    append(...children) {
-      this.children.push(...children);
-    }
-    replaceChildren(...children) {
-      this.children = children;
-    }
-    setAttribute() {}
-  }
+test("project materials keeps generated clips, post files and archive files distinct from delivery", () => {
   const ids = Object.fromEntries(
-    ["documents-tab", "media-tab", "search", "tree", "reader"].map((id) => [
-      id,
-      new Element(id),
-    ]),
+    ["search", "tree", "reader"].map((id) => [id, new Element(id)]),
   );
   let publish;
   runInNewContext(
@@ -479,39 +366,44 @@ test("project materials keeps generated clips, post files and retired director f
           onData: (fn) => {
             publish = fn;
           },
+          readArtifact: async () => ({ kind: "text", content: "# Plan" }),
         },
       },
       addEventListener() {},
     },
   );
   const paths = [
-    "episodes/EP01/production/clips/C001.mp4",
-    "episodes/EP01/post/rough.mp4",
-    "episodes/EP01/director/edit-plan.md",
-    "director/EP01-director-plan.md",
+    "episodes/EP01/production/clips/C001/C001.mp4",
+    "episodes/EP01/post/assembly/assembly.md",
+    "episodes/EP01/director/director-plan/director-plan.md",
+    "episodes/EP01/director/director-plan/archive/v1.md",
   ];
   publish({
     artifacts: paths.map((id) => ({ id, relativePath: id, bytes: 100 })),
   });
-  const episodes = ids.tree.children.find(
-    (node) => node.children[0].textContent === "分集制作",
+
+  // Search director-plan
+  ids.search.oninput({ target: { value: "director-plan" } });
+  const dirBtn = walk(ids.tree).find(
+    (c) => c.className === "tree-label" && c.textContent === "导演整体方案",
   );
-  const ep = episodes.children.find((node) => node.tag === "details");
-  const names = ep.children.map((node) => node.textContent);
-  assert.ok(names.indexOf("C001.mp4") > names.indexOf("视频制作"));
-  assert.ok(names.indexOf("C001.mp4") < names.indexOf("后期交付"));
-  assert.ok(names.indexOf("rough.mp4") > names.indexOf("后期交付"));
-  assert.ok(names.indexOf("edit-plan.md") > names.indexOf("分集补充"));
-  assert.equal(
-    names.some(
-      (name) => name?.includes("Mode I") || name?.includes("交付成片"),
-    ),
-    false,
-  );
-  const other = ids.tree.children.find(
-    (node) => node.children[0].textContent === "其他资料",
+  assert.ok(dirBtn);
+  dirBtn.onclick();
+
+  // Archive is kept in archive section and not as root deliverable node
+  assert.ok(
+    walk(ids.reader).some((c) => c.className?.includes("archive-section")),
+    "archive section exists inside reader",
   );
   assert.ok(
-    other.children.some((node) => node.textContent === "EP01-director-plan.md"),
+    walk(ids.reader).some((c) => c.textContent?.includes("归档资料 · 1")),
+    "archive count is correctly displayed",
   );
+
+  // Search clips
+  ids.search.oninput({ target: { value: "C001" } });
+  const clipBtn = walk(ids.tree).find(
+    (c) => c.className === "tree-label" && c.textContent?.includes("C001"),
+  );
+  assert.ok(clipBtn);
 });

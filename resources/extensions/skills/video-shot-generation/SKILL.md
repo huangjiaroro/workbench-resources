@@ -2,7 +2,7 @@
 name: video-shot-generation
 description: 接收已审定导演 Scene→Shot 与动态时间轴及真实视觉资产，完成技术 Clip 安排、状态核验、Prompt/参考输入编译、真实生成、抽帧与 Production 交接。
 metadata:
-  version: 1.2.2
+  version: 1.3.1
   display_name: AI 视频制作（生成与 Prompt 编译）
 ---
 

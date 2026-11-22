@@ -1,8 +1,8 @@
 format: 3
 id: project-materials
-version: 1.0.9
+version: 1.0.8
 name: 作品资料
-description: 浏览当前作品的文档与媒体资料，支持短剧各阶段产物与分集层级视听规划。
+description: 统一浏览当前作品正式文档、图片、视频及提示词，按作品层级展示并按需查阅归档。
 docs: WORKBENCH-TOOLS.md
 entrypoints: []
 dependencies: []

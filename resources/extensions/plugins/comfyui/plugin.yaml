@@ -1,8 +1,9 @@
 format: 3
 id: comfyui
-version: 1.0.7
+version: 1.0.8
 name: ComfyUI
-description: 连接 ComfyUI 服务，支持全能多模态参考生视频 (h3-flex/h3)、首尾帧生视频 (h3-flex-fl) 以及 MiniMax Music 3 音乐生成，支持任务恢复与结果下载。
+description: 连接 ComfyUI 服务，支持全能多模态参考生视频 (h3-flex/h3)、首尾帧生视频 (h3-flex-fl) 以及
+  MiniMax Music 3 音乐生成，支持任务恢复与结果下载。
 docs: WORKBENCH-TOOLS.md
 entrypoints:
   - id: cli

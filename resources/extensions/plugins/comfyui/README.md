@@ -48,7 +48,13 @@ zp-comfy video generate --connection <配置路径> --workflow h3 --prompt-file 
 - **可选工作流 `h3`**：标清（默认 0.4 MP）。默认使用底模 20 步采样；**支持 `--turbo`（或 JSON `"turbo": true`）开关**：开启时底层切换至 MiniMax 官方 Turbo 蒸馏 LoRA（`minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors`）并采用 4 步采样，专用于**快速验证分镜运镜与主体动作定稿**。
 - 两者均使用 `minimax_h3_video_vae_int8_convrot.safetensors` 视频 VAE、`minimax_h3_audio_vae_fp32.safetensors` 与 `minimax_h3_ref2va_pruned_int8_convrot.safetensors` 底模。服务端需安装对应模型及支持它的 ComfyUI 版本。视频输出为 MP4。
 
-### 2. 首尾帧视频示例 (`h3-flex-fl`)
+### 2. 高清与低清
+
+`h3-flex` 和 `h3-flex-fl` 都支持 `--quality high|low`，JSON 对应顶层字段 `"quality": "low"`。默认 `high`，`h3-flex` 按 0.98 MP 和所选画幅生成，`h3-flex-fl` 按首帧原始尺寸对齐到 32 像素的倍数。
+
+`low` 用于打样，目标短边为 480 像素，宽高仍按 32 像素对齐。16:9 横屏为 864 × 480，9:16 竖屏为 480 × 864。首尾帧工作流沿用首帧比例计算，首帧短边已经小于 480 像素时，只做 32 像素对齐。
+
+### 3. 首尾帧视频示例 (`h3-flex-fl`)
 
 JSON 请求文件示例：
 ```json

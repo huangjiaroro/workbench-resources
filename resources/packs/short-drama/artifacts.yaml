@@ -1,56 +1,71 @@
-version: 4.4.0
+version: 5.0.0
 kinds:
   brief:
     name: 作品目标
-    path: story/brief.md
+    path: story/brief/brief.md
   project-design:
     name: 整体故事设计
-    path: story/project-design.md
+    path: story/project-design/project-design.md
   blueprint:
     name: 故事蓝图
-    path: story/blueprint.md
+    path: story/blueprint/blueprint.md
   canon:
     name: 锁定事实
-    path: story/canon.md
+    path: story/canon/canon.md
   story-unit:
     name: 承重单元
-    path: story/units/{unitId}.md
+    path: story/units/{unitId}/unit.md
   episode-design:
     name: 单集戏剧设计
-    path: episodes/EP{episode}/episode-design.md
+    path: episodes/EP{episode}/writing/episode-design/episode-design.md
   episode:
     name: 单集分场正文
-    path: episodes/EP{episode}/script.md
+    path: episodes/EP{episode}/writing/script/script.md
   episode-state:
     name: 续作状态
-    path: episodes/EP{episode}/state.md
+    path: episodes/EP{episode}/writing/state/state.md
   research:
     name: 研究记录
-    path: research/{topic}.md
+    path: research/{topic}/research.md
   review:
     name: 审查记录
-    path: reviews/{subject}.md
+    path: reviews/{subject}/review.md
   asset-registry:
     name: 正式素材登记
-    path: assets/asset-registry.md
+    path: assets/asset-registry.json
+  asset-design:
+    name: 素材设计
+    path: assets/{assetType}/{assetId}/design.md
+  asset-prompt:
+    name: 素材生成提示词
+    path: assets/{assetType}/{assetId}/prompt.md
   director-plan:
     name: 导演整体方案
-    path: episodes/EP{episode}/director/director-plan.md
+    path: episodes/EP{episode}/director/director-plan/director-plan.md
   performance-plan:
     name: 表演设计
-    path: episodes/EP{episode}/director/performance-plan.md
+    path: episodes/EP{episode}/director/performance-plan/performance-plan.md
   shot-plan:
     name: 镜头规划
-    path: episodes/EP{episode}/director/shot-plan.md
+    path: episodes/EP{episode}/director/shot-plan/shot-plan.md
   bgm-plan:
     name: 背景音乐规划
-    path: episodes/EP{episode}/director/bgm-plan.md
+    path: episodes/EP{episode}/director/bgm-plan/bgm-plan.md
   video-production:
     name: 视频制作与采用索引
-    path: episodes/EP{episode}/production/production.md
+    path: episodes/EP{episode}/production/production.json
+  clip-prompt:
+    name: 视频生成提示词
+    path: episodes/EP{episode}/production/clips/{clipId}/prompt.md
+  reference-prompt:
+    name: 本集参考素材提示词
+    path: episodes/EP{episode}/production/references/{referenceId}/prompt.md
   music-track:
     name: 曲目设计与制作
     path: assets/music/{trackId}/track.md
+  music-prompt:
+    name: 音乐生成提示词
+    path: assets/music/{trackId}/prompt.md
   assembly:
     name: 成片制作记录
-    path: episodes/EP{episode}/post/assembly.md
+    path: episodes/EP{episode}/post/assembly/assembly.md

@@ -147,6 +147,12 @@ test("commercialization bundle rebuild includes complete current dependencies an
       );
       assert.equal(bundled.digest, source.digest, id);
     }
+    for (const id of ["media", "pixel-studio", "project-materials"]) {
+      assert.ok(
+        existsSync(join(directory, "bundle/plugins", id, "plugin.yaml")),
+        `plugin ${id} is bundled`,
+      );
+    }
     assert.equal(
       readFileSync(
         join(directory, "bundle/docs/drama-commercialization.md"),

@@ -23,6 +23,7 @@ import {resourceSourceRoot} from '../lib/resource-sources.mjs';
 const { parsePackDefinitionFromSource } = await importWorkbenchModule('packages/resource-loader/src/pack.ts');
 const { loadEmployeeDefinition } = await importWorkbenchModule('packages/resource-loader/src/employee.ts');
 const { loadSkillDefinition } = await importWorkbenchModule('packages/resource-loader/src/skill.ts');
+const { parsePluginManifest } = await importWorkbenchModule('packages/resource-loader/src/plugin.ts');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '../..');
@@ -35,6 +36,7 @@ function parseArgs() {
     sync: true,
     validate: true,
     checkOnly: false,
+    plugins: true,
     output: null
   };
 
@@ -46,6 +48,8 @@ function parseArgs() {
     else if (arg === '--no-sync') options.sync = false;
     else if (arg === '--no-validate') options.validate = false;
     else if (arg === '--check-only') options.checkOnly = true;
+    else if (arg === '--no-plugins') options.plugins = false;
+    else if (arg === '--plugins' || arg === '--include-plugins') options.plugins = true;
     else if (arg === '--output' && args[i + 1]) options.output = path.resolve(args[++i]);
     else if (arg === '-h' || arg === '--help') {
       console.log(`
@@ -58,6 +62,8 @@ function parseArgs() {
   --no-desktop        不复制 zip 包到桌面
   --no-sync           跳过从 resources/ 自动同步到 dist/ 目录
   --no-validate       跳过组织、员工与技能结构校验
+  --no-plugins        不打包涉及的插件源码（默认包含）
+  --plugins           打包涉及的插件源码（默认开启）
   --check-only        仅运行规范校验，不打包生成 zip
   --output <path>     自定义 zip 输出文件路径
   -h, --help          查看帮助说明
@@ -129,11 +135,24 @@ export function runValidation(bundleDir) {
   for (const {id} of required) {
     if (!skillIds.has(id)) throw new Error(`组织包缺少技能: ${id}`);
   }
-  console.log(`[校验] ${pack.name}：${pack.employees.length} 个岗位、${skillIds.size} 个技能结构有效`);
+  const pluginsDir = path.join(bundleDir, 'plugins');
+  let pluginCount = 0;
+  if (fs.existsSync(pluginsDir)) {
+    for (const id of fs.readdirSync(pluginsDir)) {
+      const manifestPath = path.join(pluginsDir, id, 'plugin.yaml');
+      if (fs.existsSync(manifestPath)) {
+        const manifest = parsePluginManifest(fs.readFileSync(manifestPath, 'utf8'));
+        if (manifest.id !== id) throw new Error(`插件目录与标识不一致: ${id}`);
+        pluginCount++;
+      }
+    }
+  }
+  const pluginInfo = pluginCount > 0 ? `、${pluginCount} 个插件` : '';
+  console.log(`[校验] ${pack.name}：${pack.employees.length} 个岗位、${skillIds.size} 个技能${pluginInfo}结构有效`);
   return true;
 }
 
-export function syncBundle(packName, bundleDir, {sourceRoot = resourceSourceRoot, validate = true} = {}) {
+export function syncBundle(packName, bundleDir, {sourceRoot = resourceSourceRoot, validate = true, plugins = true} = {}) {
   if (!/^[a-z][a-z0-9-]*$/.test(packName)) throw new Error('无效的组织标识');
   const packDir = path.join(sourceRoot, 'resources/packs', packName);
   const employeeRoot = path.join(sourceRoot, 'resources/employees');
@@ -182,6 +201,23 @@ export function syncBundle(packName, bundleDir, {sourceRoot = resourceSourceRoot
       const skill = loadSkillDefinition(path.join(source, 'SKILL.md'));
       if (skill.id !== id) throw new Error(`技能目录与标识不一致: ${id}`);
       copyDirRecursive(source, path.join(staging, 'skills', id));
+    }
+    if (plugins && packConfig.plugins && packConfig.plugins.length > 0) {
+      fs.mkdirSync(path.join(staging, 'plugins'));
+      for (const plugin of packConfig.plugins) {
+        const id = plugin.id;
+        let source = path.join(sourceRoot, 'resources/extensions/plugins', id);
+        if (!fs.existsSync(source)) {
+          const builtin = path.join(sourceRoot, 'resources/builtin/plugins', id);
+          source = fs.existsSync(builtin) ? builtin : path.join(workbenchRoot, 'resources/builtin/plugins', id);
+        }
+        if (!fs.existsSync(source)) throw new Error(`组织包缺少插件: ${id}`);
+        const manifestPath = path.join(source, 'plugin.yaml');
+        if (!fs.existsSync(manifestPath)) throw new Error(`插件缺少 plugin.yaml: ${id}`);
+        const manifest = parsePluginManifest(fs.readFileSync(manifestPath, 'utf8'));
+        if (manifest.id !== id) throw new Error(`插件目录与标识不一致: ${id}`);
+        copyDirRecursive(source, path.join(staging, 'plugins', id));
+      }
     }
     const doc = path.join(rootDir, 'docs', `${packName}.md`);
     if (fs.existsSync(doc)) {
@@ -256,7 +292,7 @@ async function main() {
   // 1. 同步
   let packConfig = null;
   if (options.sync) {
-    packConfig = syncBundle(packName, bundleDir, {validate: options.validate});
+    packConfig = syncBundle(packName, bundleDir, {validate: options.validate, plugins: options.plugins});
   } else {
     const packYaml = path.join(bundleDir, 'organization/pack.yaml');
     if (fs.existsSync(packYaml)) {
@@ -289,11 +325,15 @@ async function main() {
 
   // 5. 总结
   const sizeMb = (sizeBytes / (1024 * 1024)).toFixed(2);
+  const pluginCount = packConfig?.plugins?.length || 0;
   console.log(`\n[5/5] 打包圆满完成！`);
   console.log(`----------------------------------------`);
   console.log(`- 组织名称: ${packConfig?.name || packName}`);
   console.log(`- 组织版本: v${version}`);
   console.log(`- 岗位数量: ${packConfig?.employees?.length || 9}`);
+  if (pluginCount > 0 && options.plugins) {
+    console.log(`- 包含插件: ${packConfig.plugins.map(p => p.id).join(', ')} (${pluginCount} 个)`);
+  }
   console.log(`- 归档大小: ${sizeMb} MB`);
   console.log(`- 产物路径: ${zipOutputPath}`);
   if (desktopFiles.length > 0) {

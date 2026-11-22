@@ -19,8 +19,10 @@
   "140:133": {"inputs": {"value": 5}, "class_type": "PrimitiveFloat"},
   "140:134": {"inputs": {"lora_name": "pika_h3_flex_fl2va_v1_bf16.safetensors", "strength_model": 1, "model": ["140:127", 0]}, "class_type": "LoraLoaderModelOnly"},
   "140:143": {"inputs": {"sigmas": "1.0, 0.972973, 0.923077, 0.8, 0.571429, 0.333333, 0.0"}, "class_type": "ManualSigmas"},
-  "140:150": {"inputs": {"expression": "round(a/32)*32", "values.a": ["140:152", 0]}, "class_type": "ComfyMathExpression"},
-  "140:151": {"inputs": {"expression": "round(a/32)*32", "values.a": ["140:153", 0]}, "class_type": "ComfyMathExpression"},
+  "140:150": {"inputs": {"expression": "round(a*b/32)*32", "values.a": ["140:152", 0], "values.b": ["140:154", 0]}, "class_type": "ComfyMathExpression"},
+  "140:151": {"inputs": {"expression": "round(a*b/32)*32", "values.a": ["140:153", 0], "values.b": ["140:154", 0]}, "class_type": "ComfyMathExpression"},
   "140:152": {"inputs": {"value": ["149", 0]}, "class_type": "PrimitiveInt"},
-  "140:153": {"inputs": {"value": ["149", 1]}, "class_type": "PrimitiveInt"}
+  "140:153": {"inputs": {"value": ["149", 1]}, "class_type": "PrimitiveInt"},
+  "140:154": {"inputs": {"expression": "min(1, c/min(a,b)) if c else 1", "values.a": ["140:152", 0], "values.b": ["140:153", 0], "values.c": ["140:155", 0]}, "class_type": "ComfyMathExpression"},
+  "140:155": {"inputs": {"value": 0}, "class_type": "PrimitiveInt"}
 }

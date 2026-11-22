@@ -1,20 +1,12 @@
 (() => {
-  const mediaNames = { image: '图片素材', video: '视频与成片', audio: '音乐与音频' };
   const mediaExtensions = {
     png: 'image', jpg: 'image', jpeg: 'image', webp: 'image', gif: 'image', svg: 'image',
     mp4: 'video', webm: 'video', mov: 'video', mkv: 'video',
     mp3: 'audio', wav: 'audio', aac: 'audio', m4a: 'audio', ogg: 'audio', flac: 'audio'
   };
-  const directorDocuments = new Map([
-    ['director/director-plan.md', {kindId: 'director-plan', displayName: '导演整体方案', order: 10}],
-    ['director/performance-plan.md', {kindId: 'performance-plan', displayName: '表演设计', order: 11}],
-    ['director/shot-plan.md', {kindId: 'shot-plan', displayName: '镜头规划', order: 12}],
-    ['director/bgm-plan.md', {kindId: 'bgm-plan', displayName: '背景音乐规划', order: 13}]
-  ]);
 
-  const expansion = new Map(), cached = new Map(), docCache = new Map();
-  let data = {}, mode = 'documents', signature = '', query = '', selectedMedia = '', selectedDocument = '', selection = 0, observer;
-  let documentViewMode = 'rendered'; // 'rendered' | 'source'
+  const cached = new Map(), docCache = new Map();
+  let query = "", observer;
 
   const make = (tag, className, text) => {
     const element = document.createElement(tag);
@@ -22,7 +14,6 @@
     if (text !== undefined && text !== null && text !== '') element.textContent = text;
     return element;
   };
-  const size = bytes => bytes < 1024 ? bytes + ' B' : bytes < 1024 * 1024 ? Math.round(bytes / 1024) + ' KB' : (bytes / 1024 / 1024).toFixed(1) + ' MB';
   const getMediaKind = item => {
     if (item.kind && ['image', 'video', 'audio'].includes(item.kind)) return item.kind;
     const ext = ((item.relativePath || item.name || item.id || '').split('.').pop() || '').toLowerCase();
@@ -31,144 +22,10 @@
 
   function normalizePath(rawPath) {
     let path = (rawPath || '').replace(/\\/g, '/').trim();
-    if (path.startsWith('artifacts/')) path = path.slice('artifacts/'.length);
     if (path.startsWith('./')) path = path.slice(2);
-    if (path.startsWith('/')) path = path.slice(1);
+    if (path.startsWith('artifacts/')) path = path.slice('artifacts/'.length);
     return path;
   }
-
-  function classifyArtifact(item) {
-    const cleanPath = normalizePath(item.relativePath || item.name || item.id || '');
-    const fileName = cleanPath.split('/').pop() || cleanPath;
-
-    // 作品文档按当前目录分组；未识别文件保留原名，不推断交付状态。
-    const epFolderMatch = cleanPath.match(/^episodes\/(EP\d+)\/(.*)$/i);
-    if (epFolderMatch) {
-      const rawEp = epFolderMatch[1];
-      const subPath = epFolderMatch[2];
-
-      const numMatch = rawEp.match(/\d+/);
-      const numStr = numMatch ? numMatch[0] : '1';
-      const episodeKey = rawEp.toUpperCase().startsWith('EP') ? rawEp.toUpperCase() : ('EP' + numStr.padStart(2, '0'));
-      const episodeNum = parseInt(numStr, 10);
-      const episodeTitle = '第 ' + numStr + ' 集';
-
-      // 当前短剧产物的阅读分组；正式读写路径由组织产物契约决定。
-      // 编剧阶段
-      if (/^episode-design\.md$/i.test(subPath)) {
-        return {
-          sectionId: 'episodes', sectionTitle: '分集制作', isEpisode: true, episode: episodeKey, episodeTitle, episodeNum,
-          stageId: 'writing', stageTitle: '编剧', stageOrder: 1, kindId: 'episode-design', displayName: '单集戏剧设计', order: 0,
-          shortPath: subPath, cleanPath, item
-        };
-      }
-      if (/^script\.md$/i.test(subPath)) {
-        return {
-          sectionId: 'episodes', sectionTitle: '分集制作', isEpisode: true, episode: episodeKey, episodeTitle, episodeNum,
-          stageId: 'writing', stageTitle: '编剧', stageOrder: 1, kindId: 'episode', displayName: '单集分场正文', order: 1,
-          shortPath: subPath, cleanPath, item
-        };
-      }
-      if (/^state\.md$/i.test(subPath)) {
-        return {
-          sectionId: 'episodes', sectionTitle: '分集制作', isEpisode: true, episode: episodeKey, episodeTitle, episodeNum,
-          stageId: 'writing', stageTitle: '编剧', stageOrder: 1, kindId: 'episode-state', displayName: '续作状态', order: 2,
-          shortPath: subPath, cleanPath, item
-        };
-      }
-
-      if (/^director\//i.test(subPath)) {
-        const document = directorDocuments.get(subPath.toLowerCase()) ??
-          {kindId: 'custom', displayName: fileName, order: 99};
-        return {
-          sectionId: 'episodes', sectionTitle: '分集制作', isEpisode: true, episode: episodeKey, episodeTitle, episodeNum,
-          stageId: 'directing', stageTitle: '导演规划', stageOrder: 2, ...document,
-          shortPath: subPath, cleanPath, item
-        };
-      }
-      // 视频制作阶段
-      if (/^production\/production\.md$/i.test(subPath)) {
-        return {
-          sectionId: 'episodes', sectionTitle: '分集制作', isEpisode: true, episode: episodeKey, episodeTitle, episodeNum,
-          stageId: 'production', stageTitle: '视频制作', stageOrder: 3, kindId: 'video-production', displayName: '视频制作与采用索引', order: 20,
-          shortPath: subPath, cleanPath, item
-        };
-      }
-
-      // 后期交付阶段
-      if (/^post\/assembly\.md$/i.test(subPath)) {
-        return {
-          sectionId: 'episodes', sectionTitle: '分集制作', isEpisode: true, episode: episodeKey, episodeTitle, episodeNum,
-          stageId: 'post', stageTitle: '后期交付', stageOrder: 4, kindId: 'assembly', displayName: '成片制作记录', order: 30,
-          shortPath: subPath, cleanPath, item
-        };
-      }
-      // 文件位置只表示制作阶段，不能证明视频已经验收或交付。
-      const stage = subPath.startsWith('production/')
-        ? {stageId: 'production', stageTitle: '视频制作', stageOrder: 3}
-        : subPath.startsWith('post/')
-          ? {stageId: 'post', stageTitle: '后期交付', stageOrder: 4}
-          : {stageId: 'other', stageTitle: '分集补充', stageOrder: 5};
-      return {
-        sectionId: 'episodes', sectionTitle: '分集制作', isEpisode: true, episode: episodeKey, episodeTitle, episodeNum,
-        ...stage, kindId: 'custom', displayName: fileName, order: 99, shortPath: subPath, cleanPath, item
-      };
-    }
-
-    // 2. 故事设定
-    if (/^story\/brief\.md$/i.test(cleanPath)) {
-      return { sectionId: 'story', sectionTitle: '故事设定', displayName: '作品目标', kindId: 'brief', order: 1, shortPath: cleanPath, cleanPath, item };
-    }
-    if (/^story\/project-design\.md$/i.test(cleanPath)) {
-      return { sectionId: 'story', sectionTitle: '故事设定', displayName: '整体故事设计', kindId: 'project-design', order: 2, shortPath: cleanPath, cleanPath, item };
-    }
-    if (/^story\/blueprint\.md$/i.test(cleanPath)) {
-      return { sectionId: 'story', sectionTitle: '故事设定', displayName: '故事蓝图', kindId: 'blueprint', order: 3, shortPath: cleanPath, cleanPath, item };
-    }
-    if (/^story\/canon\.md$/i.test(cleanPath)) {
-      return { sectionId: 'story', sectionTitle: '故事设定', displayName: '锁定事实', kindId: 'canon', order: 4, shortPath: cleanPath, cleanPath, item };
-    }
-    const unitMatch = cleanPath.match(/^story\/units\/([^/]+)\.md$/i);
-    if (unitMatch) {
-      return { sectionId: 'story', sectionTitle: '故事设定', displayName: '承重单元 · ' + unitMatch[1], kindId: 'story-unit', order: 10, shortPath: cleanPath, cleanPath, item };
-    }
-
-    // 3. 全剧资产
-    if (/^assets\/asset-registry\.md$/i.test(cleanPath)) {
-      return { sectionId: 'assets', sectionTitle: '全剧资产', displayName: '正式素材登记', kindId: 'asset-registry', order: 1, shortPath: cleanPath, cleanPath, item };
-    }
-    const musicMatch = cleanPath.match(/^assets\/music\/([^/]+)\/track\.md$/i);
-    if (musicMatch) {
-      return { sectionId: 'assets', sectionTitle: '全剧资产', displayName: '曲目制作 · ' + musicMatch[1], kindId: 'music-track', order: 10, shortPath: cleanPath, cleanPath, item };
-    }
-    if (/^assets\//i.test(cleanPath)) {
-      return { sectionId: 'assets', sectionTitle: '全剧资产', displayName: fileName, kindId: 'asset-item', order: 20, shortPath: cleanPath, cleanPath, item };
-    }
-
-    // 4. 研究资料
-    const resMatch = cleanPath.match(/^research\/([^/]+)\.md$/i);
-    if (resMatch) {
-      return { sectionId: 'research', sectionTitle: '研究资料', displayName: '研究记录 · ' + resMatch[1], kindId: 'research', order: 1, shortPath: cleanPath, cleanPath, item };
-    }
-
-    // 5. 审查记录
-    const revMatch = cleanPath.match(/^reviews\/([^/]+)\.md$/i);
-    if (revMatch) {
-      return { sectionId: 'reviews', sectionTitle: '审查记录', displayName: '审查记录 · ' + revMatch[1], kindId: 'review', order: 1, shortPath: cleanPath, cleanPath, item };
-    }
-
-    // 6. 其他资料
-    return {
-      sectionId: 'other', sectionTitle: '其他资料', displayName: fileName, kindId: 'other', order: 99, shortPath: cleanPath, cleanPath, item
-    };
-  }
-
-  const matches = (item, meta) => {
-    if (!query) return true;
-    const q = query.toLowerCase();
-    const str = `${item.name || ''} ${item.relativePath || ''} ${meta?.displayName || ''} ${meta?.episode || ''} ${meta?.stageTitle || ''} ${meta?.sectionTitle || ''}`.toLowerCase();
-    return str.includes(q);
-  };
 
   function escapeHtml(str) {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -365,353 +222,327 @@
     container.loadThumbnail = load; observer.observe(container);
   }
 
-  function mediaReader(reader, item, meta) {
-    const ticket = ++selection;
-    const toolbar = make('header', 'reader-toolbar', '');
-    const left = make('div', 'reader-toolbar-left', '');
-    const right = make('div', 'reader-toolbar-right', '');
-
-    if (mode === 'media') {
-      const back = make('button', 'back-button', '‹ 素材总览');
-      back.onclick = () => { selectedMedia = ''; render(); };
-      left.append(back);
-    }
-
-    const metaBox = make('div', 'reader-meta', '');
-    const breadcrumbs = make('div', 'reader-meta-breadcrumbs', '');
-    if (meta?.isEpisode) {
-      breadcrumbs.append(make('span', 'reader-badge', meta.episode), make('span', 'reader-stage', meta.stageTitle || '分集'));
-    } else if (meta?.sectionTitle) {
-      breadcrumbs.append(make('span', 'reader-badge', meta.sectionTitle));
-    }
-    const titleLine = make('div', 'reader-title-line', '');
-    titleLine.append(make('span', 'reader-title', meta?.displayName || item.name || item.relativePath || item.id));
-    if (item.bytes) titleLine.append(make('span', 'reader-path', size(item.bytes)));
-    metaBox.append(breadcrumbs, titleLine);
-    left.append(metaBox);
-
-    if (item.kind === 'image') {
-      const open = make('button', 'text-button', '放大预览');
-      open.onclick = () => window.workbench.openMedia?.(item.id);
-      right.append(open);
-    }
-    toolbar.append(left, right); reader.append(toolbar);
-
-    const body = make('div', 'reader-body', '');
-    const viewer = make('div', 'media-viewer', '');
-    body.append(viewer); reader.append(body);
-
-    const load = () => {
-      viewer.replaceChildren(make('p', 'loading', '正在读取素材…'));
-      void mediaUrl(item, percent => { if (ticket === selection && viewer.firstChild) viewer.firstChild.textContent = '正在读取素材 · ' + percent + '%'; }).then(url => {
-        if (ticket !== selection) return;
-        const media = make(item.kind === 'image' ? 'img' : item.kind === 'video' ? 'video' : 'audio', '', '');
-        media.src = url;
-        if (item.kind === 'image') {
-          media.alt = item.name; media.onclick = () => window.workbench.openMedia?.(item.id);
-        } else {
-          media.controls = true; media.preload = 'metadata';
-          if (item.kind === 'video') media.setAttribute('playsinline', '');
-        }
-        media.onerror = () => viewer.replaceChildren(make('p', 'media-unavailable', '当前编码无法预览，请检查源文件。'));
-        viewer.replaceChildren(media);
-      }).catch(error => {
-        if (ticket !== selection) return;
-        const retry = make('button', 'action-button', '重新读取');
-        retry.onclick = load;
-        viewer.replaceChildren(make('p', 'media-unavailable', error?.message || String(error)), retry);
-      });
-    };
-    if (item.kind === 'image') load();
-    else {
-      const play = make('button', 'media-play', item.kind === 'video' ? '▷ 点击加载视频' : '♪ 点击加载音频');
-      play.onclick = load;
-      viewer.append(play);
-    }
+   // Current deliverables are grouped by their business object, not file type.
+  const titles = {
+    story:'故事设定', assets:'全剧资产', episodes:'分集制作', research:'研究资料', reviews:'审查记录',
+    brief:'作品目标', 'project-design':'整体故事设计', blueprint:'故事蓝图', canon:'锁定事实', units:'承重单元',
+    characters:'人物', costumes:'服装', scenes:'场景', props:'道具', music:'音乐',
+    writing:'编剧', director:'导演规划', production:'视频制作', post:'后期交付',
+    'episode-design':'单集戏剧设计', script:'分场剧本', state:'续作状态',
+    'director-plan':'导演整体方案', 'performance-plan':'表演设计', 'shot-plan':'镜头规划',
+    'bgm-plan':'背景音乐规划', clips:'视频片段', references:'本集参考素材', assembly:'成片',
+    'asset-registry.json':'素材登记', 'production.json':'制作索引', 'design.md':'设计说明',
+    'prompt.md':'生成提示词', 'track.md':'曲目设计'
+  };
+  const branchOrder = ['story','assets','episodes','research','reviews','brief','project-design','blueprint','canon','units',
+    'asset-registry.json','characters','costumes','scenes','props','music','writing','director','production','post',
+    'episode-design','script','state','director-plan','performance-plan','shot-plan','bgm-plan','production.json','clips','references','assembly'];
+  const rank = key => { const i = branchOrder.indexOf(key); return i < 0 ? 999 : i; };
+  const parts = path => path.split('/').filter(Boolean);
+  const parent = path => parts(path).slice(0,-1).join('/');
+  const basename = path => parts(path).at(-1) || '';
+  const archivePath = path => parts(path).includes('archive');
+  const pathOf = item => normalizePath(item.relativePath || item.name || item.id || '');
+  let unifiedFiles = new Map(), nodes = new Map(), indexMeta = new Map(), indexErrors = new Map();
+  let chosenPath = '', refreshTicket = 0, unifiedSignature = '', expandedPaths = new Set();
+  let selectedArchive = new Map();
+  function validPath(path) {
+    return typeof path === 'string' && path.length && !path.startsWith('/') && !parts(path).some(p => p === '..' || p === '.');
   }
-
-  function documentReader(reader, item) {
-    const meta = classifyArtifact(item);
-    const mediaKind = getMediaKind(item);
-    if (mediaKind) {
-      const mediaItem = { ...item, kind: mediaKind, name: item.name || item.relativePath?.split('/').pop() || item.id };
-      mediaReader(reader, mediaItem, meta);
-      return;
+  function objectPath(path) {
+    const p = parts(path);
+    if (p[0] === 'assets' && ['characters','costumes','scenes','props','music'].includes(p[1]) && p.length >= 4) return p.slice(0,3).join('/');
+    if (p[0] === 'episodes' && /^EP\d+$/i.test(p[1] || '')) {
+      if (['writing','director'].includes(p[2]) && p.length >= 5) return p.slice(0,4).join('/');
+      if (p[2] === 'production' && ['clips','references'].includes(p[3]) && p.length >= 6) return p.slice(0,5).join('/');
+      if (p[2] === 'post' && p[3] === 'assembly' && p.length >= 5) return p.slice(0,4).join('/');
     }
-
-    const ticket = ++selection;
-    const toolbar = make('header', 'reader-toolbar', '');
-    const left = make('div', 'reader-toolbar-left', '');
-    const right = make('div', 'reader-toolbar-right', '');
-
-    const metaBox = make('div', 'reader-meta', '');
-    const breadcrumbs = make('div', 'reader-meta-breadcrumbs', '');
-    if (meta.isEpisode) {
-      breadcrumbs.append(make('span', 'reader-badge', meta.episode), make('span', 'reader-stage', meta.stageTitle || '分集'));
-    } else {
-      breadcrumbs.append(make('span', 'reader-badge', meta.sectionTitle));
-    }
-    const titleLine = make('div', 'reader-title-line', '');
-    titleLine.append(make('span', 'reader-title', meta.displayName));
-    titleLine.append(make('span', 'reader-path', (meta.cleanPath || item.relativePath) + ' · ' + size(item.bytes)));
-    metaBox.append(breadcrumbs, titleLine);
-    left.append(metaBox);
-
-    const toggle = make('button', 'text-button', documentViewMode === 'rendered' ? '查看源文' : '阅读视图');
-    const copy = make('button', 'copy-button', '');
-    copy.setAttribute('type', 'button');
-    copy.setAttribute('aria-label', '复制文件内容');
-    copy.innerHTML = '<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="6" width="10" height="11" rx="2"></rect><path d="M7 6V4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-2"></path></svg><span class="copy-status">复制</span>';
-    right.append(toggle, copy);
-    toolbar.append(left, right);
-    reader.append(toolbar);
-
-    const body = make('div', 'reader-body', '');
-    reader.append(body);
-
-    let text = '';
-
-    copy.onclick = async () => {
-      if (!text) return;
-      const label = copy.querySelector?.('.copy-status');
-      try {
-        if (navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(text);
-        } else {
-          const ta = document.createElement('textarea');
-          ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-          document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
-        }
-        if (label) label.textContent = '已复制';
-        setTimeout(() => { if (label?.isConnected) label.textContent = '复制'; }, 2000);
-      } catch {
-        if (label) label.textContent = '复制失败';
-        setTimeout(() => { if (label?.isConnected) label.textContent = '复制'; }, 2000);
-      }
-    };
-
-    function renderBody() {
-      if (!text) return;
-      const isMd = /\.(md|markdown)$/i.test(item.relativePath || item.name || item.id || '');
-      if (documentViewMode === 'rendered' && isMd) {
-        body.replaceChildren(renderMarkdown(text));
+    if (p[0] === 'story' && p[1] === 'units' && p.length >= 4) return p.slice(0,3).join('/');
+    if (p[0] === 'story' && ['brief','project-design','blueprint','canon'].includes(p[1]) && p.length >= 3) return p.slice(0,2).join('/');
+    if (['research','reviews'].includes(p[0]) && p.length >= 3) return p.slice(0,2).join('/');
+    return null;
+  }
+  function ensureNode(path, kind = 'folder') {
+    if (nodes.has(path)) return nodes.get(path);
+    const name = basename(path);
+    const node = {path, name, label: titles[name] || name || '作品资料', kind, children:[], files:[], archives:[]};
+    nodes.set(path,node);
+    if (path) ensureNode(parent(path)).children.push(node);
+    return node;
+  }
+  function orderedChildren(node) {
+    return [...node.children].sort((a,b) => {
+      const ma = indexMeta.get(a.path), mb = indexMeta.get(b.path);
+      if (ma?.order !== undefined || mb?.order !== undefined) return (ma?.order ?? 1e6) - (mb?.order ?? 1e6);
+      return rank(a.name) - rank(b.name) || a.name.localeCompare(b.name,'zh-CN',{numeric:true});
+    });
+  }
+  function buildUnifiedTree() {
+    nodes = new Map(); ensureNode('');
+    for (const [path,item] of unifiedFiles) {
+      if (archivePath(path)) continue;
+      const root = objectPath(path);
+      if (root) {
+        const node = ensureNode(root,'object'); node.kind='object'; node.files.push({path,item});
       } else {
-        const pre = make('pre', 'source-pre', text);
-        body.replaceChildren(pre);
+        const node = ensureNode(path,'file'); node.kind='file'; node.files.push({path,item});
       }
     }
-
-    toggle.onclick = () => {
-      documentViewMode = documentViewMode === 'rendered' ? 'source' : 'rendered';
-      toggle.textContent = documentViewMode === 'rendered' ? '查看源文' : '阅读视图';
-      renderBody();
+    for (const [path,item] of unifiedFiles) {
+      if (!archivePath(path)) continue;
+      const root = parts(path).slice(0,parts(path).indexOf('archive')).join('/');
+      const node = nodes.get(root);
+      if (node?.kind === 'object') node.archives.push({path,item});
+      else if (node) node.archives.push({path,item});
+      else {
+        let owner=parent(root);
+        while(owner&&!nodes.has(owner))owner=parent(owner);
+        nodes.get(owner).archives.push({path,item});
+      }
+    }
+    for (const [path,meta] of indexMeta) {
+      const node = nodes.get(path);
+      if (node && meta.name) node.label = /^C\d+/i.test(node.name) ? node.name + ' · ' + meta.name : meta.name;
+    }
+    if (!nodes.has(chosenPath)) chosenPath='';
+  }
+  function choose(path) {
+    chosenPath=path;
+    let ancestor=parent(path);
+    while (ancestor) { expandedPaths.add(ancestor); ancestor=parent(ancestor); }
+    renderUnified();
+  }
+  function nodeMatches(node) {
+    const q=query.trim().toLowerCase();
+    return !q || (node.label+' '+node.path).toLowerCase().includes(q) ||
+      node.files.some(f => f.path.toLowerCase().includes(q)) || node.children.some(nodeMatches);
+  }
+  function renderBranch(node, container) {
+    if (!nodeMatches(node)) return;
+    const wrapper=make('div','unified-node');
+    const line=make('div','unified-line'+(chosenPath===node.path?' selected':''));
+    const isBranch=node.kind==='folder' && node.children.length>0;
+    const toggle=make('button','tree-toggle',isBranch?(expandedPaths.has(node.path)||query?'⌄':'›'):'');
+    toggle.type='button'; toggle.disabled=!isBranch;
+    toggle.setAttribute('aria-label', '展开或收起 '+node.label);
+    if (isBranch) toggle.onclick=()=>{ if(expandedPaths.has(node.path))expandedPaths.delete(node.path);else expandedPaths.add(node.path);renderUnified(); };
+    const label=make('button','tree-label',node.label);
+    label.type='button';label.title=node.path;label.setAttribute('aria-current', chosenPath===node.path?'true':'false');
+    label.onclick=()=>{if(isBranch)expandedPaths.add(node.path);choose(node.path);};
+    line.append(toggle,label);wrapper.append(line);
+    if (isBranch && (expandedPaths.has(node.path)||query)) {
+      const child=make('div','unified-children');
+      orderedChildren(node).forEach(n=>renderBranch(n,child));wrapper.append(child);
+    }
+    container.append(wrapper);
+  }
+  function folderMedia(node) {
+    const meta=indexMeta.get(node.path);
+    const explicit=meta?.media;
+    if(explicit) {
+      const found=node.files.find(f=>f.path===explicit && getMediaKind(f.item));
+      return found;
+    }
+    return node.files.find(f=>parent(f.path)===node.path && getMediaKind(f.item) && /^(board|video|audio|final)\./i.test(basename(f.path))) ||
+      node.files.find(f=>parent(f.path)===node.path && getMediaKind(f.item));
+  }
+  async function showMedia(container,file,auto=false) {
+    const item=file.item, kind=getMediaKind(item);
+    const load=async()=>{
+      container.replaceChildren(make('p','loading','正在读取素材…'));
+      try {
+        const url=await mediaUrl({...item,kind}, percent=>{if(container.isConnected&&container.firstChild)container.firstChild.textContent='正在读取素材 · '+percent+'%';});
+        if(!container.isConnected)return;
+        const el=make(kind==='image'?'img':kind==='video'?'video':'audio');
+        el.src=url;
+        if(kind==='image'){el.alt=basename(file.path);el.onclick=()=>window.workbench.openMedia?.(item.id);}
+        else {el.controls=true;el.preload='metadata';if(kind==='video')el.setAttribute('playsinline','');}
+        el.onerror=()=>container.replaceChildren(make('p','media-unavailable','当前编码无法预览'));
+        container.replaceChildren(el);
+      }catch(error){if(container.isConnected){const retry=make('button','action-button','重新读取');retry.onclick=load;container.replaceChildren(make('p','media-unavailable',error?.message||'无法读取素材'),retry);}}
     };
-
-    const load = () => {
-      body.replaceChildren(make('p', 'loading', '正在读取文档…'));
-      void documentText(item).then(content => {
-        if (ticket !== selection) return;
-        text = content;
-        renderBody();
-      }).catch(error => {
-        if (ticket !== selection) return;
-        const retry = make('button', 'action-button', '重新读取'); retry.onclick = load;
-        body.replaceChildren(make('p', 'media-unavailable', error?.message || '文档暂不可用'), retry);
-      });
+    if(auto||kind==='image')await load();
+    else {const btn=make('button','media-play',kind==='video'?'▷ 加载视频':'♪ 加载音频');btn.onclick=load;container.replaceChildren(btn);}
+  }
+  function showDocument(container,file,plain=false) {
+    container.replaceChildren(make('p','loading','正在读取文档…'));
+    void documentText(file.item).then(text=>{
+      if(!container.isConnected)return;
+      const toolbar=make('div','detail-actions');
+      const copy=make('button','text-button','复制');
+      copy.onclick=async()=>{try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(text);else{const t=make('textarea');t.value=text;t.style.position='fixed';t.style.opacity='0';document.body.append(t);t.select();document.execCommand('copy');t.remove();}copy.textContent='已复制';}catch{copy.textContent='复制失败';}};
+      const body=make('div');
+      let source=plain||!/\.md$/i.test(file.path);
+      const renderText=()=>body.replaceChildren(source?make('pre','source-pre',text):renderMarkdown(text));
+      const toggle=make('button','text-button',source?'阅读视图':'查看源文');
+      toggle.onclick=()=>{source=!source;toggle.textContent=source?'阅读视图':'查看源文';renderText();};
+      if(/\.md$/i.test(file.path))toolbar.append(toggle);
+      toolbar.append(copy);renderText();container.replaceChildren(toolbar,body);
+    }).catch(error=>{if(container.isConnected)container.replaceChildren(make('p','media-unavailable',error?.message||'文档暂不可用'));});
+  }
+  function fileSection(body,file,title,open=true) {
+    const details=make('details','detail-section'); details.open=open;
+    details.append(make('summary','',title||titles[basename(file.path)]||basename(file.path)));
+    const content=make('div','detail-content'); details.append(content);body.append(details);
+    let loaded=false;
+    const load=()=>{if(loaded||!details.open)return;loaded=true;if(getMediaKind(file.item)){content.classList.add('inline-media');void showMedia(content,file);}else showDocument(content,file,basename(file.path)==='prompt.md');};
+    details.ontoggle=load;load();
+  }
+  function renderKeyframes(body,node,info) {
+    const indexed=Array.isArray(info?.frames)?info.frames:[];
+    const actual=node.files.filter(f=>f.path.startsWith(node.path+'/frames/')&&getMediaKind(f.item)==='image');
+    const byPath=new Map(actual.map(f=>[f.path,f]));
+    const entries=indexed.map(f=>({...f,file:byPath.get(f.path)}));
+    const used=new Set(indexed.map(f=>f.path));
+    for(const file of actual)if(!used.has(file.path))entries.push({path:file.path,file});
+    if(!entries.length)return;
+    entries.sort((a,b)=>(Number.isFinite(a.time)?a.time:Infinity)-(Number.isFinite(b.time)?b.time:Infinity)||a.path.localeCompare(b.path,'zh-CN',{numeric:true}));
+    const section=make('details','detail-section');
+    section.append(make('summary','','关键帧 · '+entries.length));
+    const content=make('div','detail-content');section.append(content);body.append(section);
+    let loaded=false;
+    section.ontoggle=()=>{
+      if(!section.open||loaded)return;loaded=true;
+      const grid=make('div','keyframe-grid');
+      const preview=make('div','keyframe-preview');
+      for(const entry of entries){
+        const card=make('button','overview-card keyframe-card');
+        const label=Number.isFinite(entry.time)?entry.time.toFixed(2)+' 秒':basename(entry.path);
+        card.append(make('strong','',label));
+        if(entry.purpose)card.append(make('small','',String(entry.purpose)));
+        if(entry.file){
+          const image=make('div','overview-thumbnail','图片');card.prepend(image);
+          thumbnail({...entry.file.item,kind:'image'},image);
+          card.onclick=()=>{preview.replaceChildren();const head=make('p','detail-meta',label+' · '+basename(entry.path));const viewer=make('div','inline-media');preview.append(head,viewer);void showMedia(viewer,entry.file);};
+        }else{
+          card.disabled=true;card.append(make('small','','文件缺失'));
+        }
+        grid.append(card);
+      }
+      content.append(grid,preview);
     };
-    load();
   }
-
-  function render() {
-    const artifacts = data.artifacts ?? [], media = data.media ?? [];
-    const next = JSON.stringify([artifacts, media, mode, query, selectedMedia, selectedDocument]);
-    if (next === signature) return;
-    signature = next; ++selection; observer?.disconnect();
-
-    for (const [id, label, count] of [['documents', '作品文档', artifacts.length], ['media', '媒体素材', media.length]]) {
-      const tab = document.getElementById(id + '-tab');
-      if (tab) {
-        tab.textContent = label + ' · ' + count;
-        tab.setAttribute('aria-pressed', String(mode === id));
-      }
+  function renderArchive(body,node) {
+    if(!node.archives.length)return;
+    const archive=make('details','detail-section archive-section');archive.open=selectedArchive.get(node.path)||false;
+    archive.append(make('summary','','归档资料 · '+node.archives.length));
+    const content=make('div','detail-content');archive.append(content);
+    const dirs=new Map([['',content]]);
+    function directory(path) {
+      if(dirs.has(path))return dirs.get(path);
+      const d=make('details','archive-dir');d.append(make('summary','',basename(path)));
+      const children=make('div','archive-children');d.append(children);directory(parent(path)).append(d);dirs.set(path,children);return children;
     }
-
-    const tree = document.getElementById('tree');
-    tree.replaceChildren();
-
-    if (mode === 'media') {
-      const mediaGroups = Object.entries(mediaNames).map(([kind, name]) => ({
-        name,
-        items: media.filter(item => item.kind === kind && ((item.name ?? '') + ' ' + (item.relativePath ?? '')).toLowerCase().includes(query.toLowerCase()))
-      }));
-      for (const group of mediaGroups) {
-        const details = document.createElement('details'), key = 'media:' + group.name;
-        details.open = query ? group.items.length > 0 : (expansion.get(key) ?? group.items.length > 0);
-        const summary = make('summary', '', group.name);
-        summary.append(make('span', '', String(group.items.length)));
-        details.append(summary);
-        details.ontoggle = () => { if (details.isConnected && !query) expansion.set(key, details.open); };
-        for (const item of group.items) {
-          const chosen = selectedMedia === item.id;
-          const button = make('button', chosen ? 'selected' : '', item.name);
-          button.setAttribute('aria-current', chosen ? 'true' : 'false');
-          button.append(make('small', '', mediaNames[item.kind] + ' · ' + size(item.bytes)));
-          button.onclick = () => { selectedMedia = item.id; render(); };
-          details.append(button);
-        }
-        if (!group.items.length) details.append(make('p', 'empty', query ? '没有匹配素材' : '暂无素材'));
-        tree.append(details);
-      }
-    } else {
-      // 整理与分类所有作品文档
-      const classified = [];
-      for (const item of artifacts) {
-        const meta = classifyArtifact(item);
-        if (matches(item, meta)) classified.push({ item, meta });
-      }
-
-      const groups = [
-        { id: 'story', title: '故事设定', items: [] },
-        { id: 'assets', title: '全剧资产', items: [] },
-        { id: 'episodes', title: '分集制作', isEpisodeScope: true, episodeMap: new Map(), count: 0 },
-        { id: 'research', title: '研究资料', items: [] },
-        { id: 'reviews', title: '审查记录', items: [] },
-        { id: 'other', title: '其他资料', items: [] }
-      ];
-
-      for (const entry of classified) {
-        if (entry.meta.sectionId === 'episodes') {
-          groups[2].count++;
-          let epGroup = groups[2].episodeMap.get(entry.meta.episode);
-          if (!epGroup) {
-            epGroup = {
-              episode: entry.meta.episode,
-              episodeTitle: entry.meta.episodeTitle,
-              episodeNum: entry.meta.episodeNum,
-              items: []
-            };
-            groups[2].episodeMap.set(entry.meta.episode, epGroup);
-          }
-          epGroup.items.push(entry);
-        } else {
-          const group = groups.find(g => g.id === entry.meta.sectionId) || groups[5];
-          group.items.push(entry);
-        }
-      }
-
-      for (const group of groups) {
-        if (group.isEpisodeScope) {
-          const details = document.createElement('details'), key = 'doc:episodes';
-          details.open = query ? group.count > 0 : (expansion.get(key) ?? group.count > 0);
-          const summary = make('summary', '', group.title);
-          summary.append(make('span', '', String(group.count)));
-          details.append(summary);
-          details.ontoggle = () => { if (details.isConnected && !query) expansion.set(key, details.open); };
-
-          const sortedEpisodes = Array.from(group.episodeMap.values()).sort((a, b) => a.episodeNum - b.episodeNum || a.episode.localeCompare(b.episode));
-          for (const ep of sortedEpisodes) {
-            const epDetails = document.createElement('details');
-            epDetails.className = 'episode-group';
-            const epKey = 'doc:ep:' + ep.episode;
-            epDetails.open = query ? ep.items.length > 0 : (expansion.get(epKey) ?? true);
-            const epSummary = make('summary', '', ep.episode + ' · ' + ep.episodeTitle);
-            epSummary.append(make('span', '', String(ep.items.length)));
-            epDetails.append(epSummary);
-            epDetails.ontoggle = () => { if (epDetails.isConnected && !query) expansion.set(epKey, epDetails.open); };
-
-            const stageBuckets = new Map();
-            for (const entry of ep.items) {
-              const sId = entry.meta.stageId || 'other';
-              if (!stageBuckets.has(sId)) {
-                stageBuckets.set(sId, { title: entry.meta.stageTitle, order: entry.meta.stageOrder || 9, items: [] });
-              }
-              stageBuckets.get(sId).items.push(entry);
-            }
-
-            const sortedStages = Array.from(stageBuckets.values()).sort((a, b) => a.order - b.order);
-            for (const stage of sortedStages) {
-              if (stage.title) {
-                epDetails.append(make('div', 'stage-title', stage.title));
-              }
-              stage.items.sort((a, b) => (a.meta.order - b.meta.order) || a.meta.displayName.localeCompare(b.meta.displayName));
-              for (const { item, meta } of stage.items) {
-                const chosen = selectedDocument === item.id;
-                const button = make('button', chosen ? 'selected' : '', meta.displayName);
-                button.setAttribute('aria-current', chosen ? 'true' : 'false');
-                button.append(make('small', '', meta.shortPath + ' · ' + size(item.bytes)));
-                button.onclick = () => { selectedDocument = item.id; render(); };
-                epDetails.append(button);
-              }
-            }
-            details.append(epDetails);
-          }
-          if (!group.count) details.append(make('p', 'empty', query ? '没有匹配资料' : '暂无分集产物'));
-          tree.append(details);
-        } else {
-          const details = document.createElement('details'), key = 'doc:' + group.id;
-          details.open = query ? group.items.length > 0 : (expansion.get(key) ?? group.items.length > 0);
-          const summary = make('summary', '', group.title);
-          summary.append(make('span', '', String(group.items.length)));
-          details.append(summary);
-          details.ontoggle = () => { if (details.isConnected && !query) expansion.set(key, details.open); };
-
-          group.items.sort((a, b) => (a.meta.order - b.meta.order) || a.meta.displayName.localeCompare(b.meta.displayName));
-          for (const { item, meta } of group.items) {
-            const chosen = selectedDocument === item.id;
-            const button = make('button', chosen ? 'selected' : '', meta.displayName);
-            button.setAttribute('aria-current', chosen ? 'true' : 'false');
-            button.append(make('small', '', meta.shortPath + ' · ' + size(item.bytes)));
-            button.onclick = () => { selectedDocument = item.id; render(); };
-            details.append(button);
-          }
-          if (!group.items.length) details.append(make('p', 'empty', query ? '没有匹配资料' : '暂无文档'));
-          tree.append(details);
-        }
-      }
+    for(const file of [...node.archives].sort((a,b)=>a.path.localeCompare(b.path,'zh-CN',{numeric:true}))){
+      const relative=file.path.slice(node.path?node.path.length+1:0).replace(/^archive\//,'');
+      fileSection(directory(parent(relative)),file,basename(file.path),false);
     }
-
-    const reader = document.getElementById('reader');
-    reader.replaceChildren();
-
-    if (mode === 'media') {
-      const item = media.find(value => value.id === selectedMedia);
-      if (item) { mediaReader(reader, item); return; }
-      const header = make('header', 'collection-heading', '');
-      header.append(make('h1', '', '媒体素材'), make('p', '', '直接查看作品中的图片、视频与音频文件。'));
-      reader.append(header);
-      const grid = make('div', 'asset-grid', '');
-      for (const item of media.filter(it => ((it.name ?? '') + ' ' + (it.relativePath ?? '')).toLowerCase().includes(query.toLowerCase()))) {
-        const button = make('button', 'asset-card', '');
-        const preview = make('span', 'asset-preview ' + item.kind, item.kind === 'image' ? '▧' : item.kind === 'video' ? '▷' : '♪');
-        button.onclick = () => { selectedMedia = item.id; render(); };
-        button.append(preview, make('strong', '', item.name), make('small', '', mediaNames[item.kind] + ' · ' + size(item.bytes)));
-        grid.append(button);
-        if (item.kind === 'image') thumbnail(item, preview);
-      }
-      reader.append(grid);
-      if (!grid.children.length) reader.append(make('p', 'empty', query ? '没有匹配的素材' : '当前作品尚无媒体文件。'));
-      return;
-    }
-
-    const docItem = artifacts.find(value => value.id === selectedDocument);
-    if (docItem) { documentReader(reader, docItem); return; }
-
-    const empty = make('div', 'reader-empty', '');
-    empty.append(
-      make('span', '', '▤'),
-      make('h1', '', '作品资料'),
-      make('p', '', '从左侧选择作品文档阅读。'),
-      make('small', '', '左侧目录支持故事设定、分集制作各阶段（编剧、导演规划、视频、后期）规范树形浏览。')
-    );
-    reader.append(empty);
+    archive.ontoggle=()=>selectedArchive.set(node.path,archive.open);body.append(archive);
   }
-
-  for (const id of ['documents', 'media']) {
-    const tab = document.getElementById(id + '-tab');
-    if (tab) tab.onclick = () => { mode = id; render(); };
+  function renderOverview(body,node) {
+    const grid=make('div','overview-grid');
+    const visible=orderedChildren(node).flatMap(child=>node.name==='production'&&child.name==='clips'?orderedChildren(child):[child]);
+    for(const child of visible.filter(nodeMatches)){
+      const card=make('button','overview-card');
+      const preview=folderMedia(child);
+      if(preview&&getMediaKind(preview.item)==='image'){
+        const image=make('div','overview-thumbnail','图片');card.append(image);
+        thumbnail({...preview.item,kind:'image'},image);
+      }else if(preview&&getMediaKind(preview.item)==='video')card.append(make('div','overview-thumbnail','▷'));
+      const label=make('strong','',child.label);card.append(label);
+      if(child.kind==='folder')card.append(make('small','',child.children.length+' 项'));
+      card.onclick=()=>{if(child.kind==='folder')expandedPaths.add(child.path);choose(child.path);};
+      grid.append(card);
+    }
+    body.append(grid);
+    if(!grid.children.length)body.append(make('p','empty','当前分类暂无正式资料'));
   }
-  document.getElementById('search').oninput = event => { query = event.target.value; render(); };
-  window.workbench.onData(value => { data = value; render(); });
+  function renderUnified() {
+    observer?.disconnect();
+    const tree=document.getElementById('tree');const scrollTop=tree.scrollTop;tree.replaceChildren();
+    const root=nodes.get('')||ensureNode('');
+    orderedChildren(root).forEach(node=>renderBranch(node,tree));
+    tree.scrollTop=scrollTop;
+    const reader=document.getElementById('reader');reader.replaceChildren();
+    const node=nodes.get(chosenPath)||root;
+    const toolbar=make('header','reader-toolbar');
+    const meta=make('div','reader-meta');
+    const crumbs=make('div','reader-path',parts(node.path).map((p,i)=>nodes.get(parts(node.path).slice(0,i+1).join('/'))?.label||titles[p]||p).join(' / ')||'当前作品');
+    meta.append(crumbs,make('div','reader-title',node.label));toolbar.append(meta);reader.append(toolbar);
+    const body=make('div','reader-body unified-reader');reader.append(body);
+    for(const [path,error] of indexErrors)if(!node.path||path.startsWith(node.path+'/')||node.path.startsWith(parent(path)+'/'))body.append(make('p','index-notice',error));
+    if(node.kind==='folder'){renderOverview(body,node);renderArchive(body,node);return;}
+    const primary=folderMedia(node);
+    if(primary)fileSection(body,primary,'当前素材',true);
+    const info=indexMeta.get(node.path);
+    if(info?.media&&!primary)body.append(make('p','index-notice','登记的当前媒体不可读取：'+info.media));
+    if(info?.status)body.append(make('p','detail-meta','制作状态：'+info.status+'（不代表成片验收）'));
+    if(info?.scene||info?.shots?.length){
+      const line=make('p','detail-meta', [info.scene,info.shots?.length?'关联镜头 '+info.shots.join('、'):''].filter(Boolean).join(' · '));body.append(line);
+    }
+    const sorted=[...node.files].sort((a,b)=>{
+      const r=f=>basename(f.path)==='prompt.md'?2:basename(f.path)==='design.md'||basename(f.path)==='track.md'?0:parent(f.path)===node.path?1:3;
+      return r(a)-r(b)||a.path.localeCompare(b.path,'zh-CN',{numeric:true});
+    });
+    const framePaths=new Set(node.files.filter(f=>f.path.startsWith(node.path+'/frames/')&&getMediaKind(f.item)==='image').map(f=>f.path));
+    for(const file of sorted){
+      if(file===primary)continue;
+      if(framePaths.has(file.path))continue;
+      const relative=node.kind==='file'?basename(file.path):file.path.slice(node.path.length+1);
+      fileSection(body,file,titles[relative]||relative,node.kind==='file'||(parent(file.path)===node.path && !getMediaKind(file.item)));
+    }
+    renderKeyframes(body,node,info);
+    if(!node.files.length)body.append(make('p','empty','暂无当前正式成果'));
+    renderArchive(body,node);
+  }
+  async function loadIndexes() {
+    const ticket=++refreshTicket;
+    const next=new Map(), errors=new Map();
+    const list=[...unifiedFiles].filter(([path,item])=>!getMediaKind(item)&& (path==='assets/asset-registry.json'||/^episodes\/EP\d+\/production\/production\.json$/i.test(path)));
+    await Promise.all(list.map(async([path,item])=>{
+      try{
+        const index=JSON.parse(await documentText(item));
+        if(path==='assets/asset-registry.json'){
+          if(!Array.isArray(index.assets))throw new Error('缺少 assets 数组');
+          const kinds={character:'characters',costume:'costumes',scene:'scenes',prop:'props'};
+          index.assets.forEach(entry=>{
+            if(!entry||typeof entry.asset_id!=='string'||!kinds[entry.kind])return;
+            const root='assets/'+kinds[entry.kind]+'/'+entry.asset_id;
+            if(!validPath(root))return;
+            next.set(root,{name:entry.name,media:validPath(entry.image_board_path)?entry.image_board_path:null});
+          });
+        }else{
+          if(!Array.isArray(index.clips))throw new Error('缺少 clips 数组');
+          index.clips.forEach((clip,order)=>{
+            if(!clip||typeof clip.id!=='string'||clip.id.includes('/'))return;
+            const root=parent(path)+'/clips/'+clip.id;
+            const shots=(Array.isArray(index.shots)?index.shots:[]).filter(s=>Array.isArray(s.segments)&&s.segments.some(seg=>seg.clipId===clip.id)).map(s=>s.shot).filter(Boolean);
+            const frames=(Array.isArray(clip.frames)?clip.frames:[]).filter(f=>f&&validPath(f.path)&&f.path.startsWith(root+'/frames/')&&!archivePath(f.path));
+            next.set(root,{name:clip.name,order,scene:clip.scene,shots,status:clip.status,media:validPath(clip.video)?clip.video:null,frames});
+          });
+        }
+      }catch(error){errors.set(path,'索引暂不可读：'+path+' · '+(error?.message||'未知错误'));}
+    }));
+    if(ticket!==refreshTicket)return;
+    const paths=[...unifiedFiles.keys()].filter(p=>!archivePath(p));
+    if(paths.some(p=>/^assets\/(characters|costumes|scenes|props)\//.test(p))&&!unifiedFiles.has('assets/asset-registry.json'))errors.set('assets/asset-registry.json','尚未发现素材登记索引；当前按实际目录浏览。');
+    for(const path of paths){
+      const match=path.match(/^(episodes\/EP\d+\/production)\/clips\//i);
+      if(match&&!unifiedFiles.has(match[1]+'/production.json'))errors.set(match[1]+'/production.json','尚未发现视频制作索引；当前按实际目录浏览，顺序未经确认。');
+    }
+    indexMeta=next;indexErrors=errors;buildUnifiedTree();renderUnified();
+  }
+  document.getElementById('search').oninput = event => { query = event.target.value; renderUnified(); };
+  window.workbench.onData(value => {
+    const artifacts=value?.artifacts??[], media=value?.media??[];
+    const next=JSON.stringify([artifacts,media]);if(next===unifiedSignature)return;unifiedSignature=next;
+    unifiedFiles=new Map();
+    for(const item of [...artifacts,...media]){
+      const path=pathOf(item);if(!validPath(path))continue;
+      if(!unifiedFiles.has(path)||getMediaKind(item))unifiedFiles.set(path,item);
+    }
+    indexMeta=new Map();indexErrors=new Map();buildUnifiedTree();renderUnified();void loadIndexes();
+  });
   addEventListener('beforeunload', () => {
     observer?.disconnect();
     for (const entry of cached.values()) void entry.promise.then(url => URL.revokeObjectURL(url)).catch(() => {});

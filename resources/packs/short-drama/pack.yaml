@@ -1,5 +1,5 @@
 id: short-drama
-version: 5.6.43
+version: 5.7.2
 workMode: projects
 name: 短剧创作组织
 playbook: playbook.md
@@ -15,14 +15,14 @@ employees:
   name: 主创
   definition:
     id: project-lead
-    version: 1.4.12
+    version: 1.4.14
   roleInstructions: leader.md
   canDelegate: true
 - role: writer
   name: 编剧
   definition:
     id: screenwriter
-    version: 3.4.8
+    version: 3.4.12
   roleInstructions: writer.md
   canDelegate: false
 - role: researcher
@@ -36,41 +36,41 @@ employees:
   name: 质量审查员
   definition:
     id: quality-reviewer
-    version: 2.4.8
+    version: 2.4.9
   roleInstructions: reviewer.md
   canDelegate: false
 - role: visual
   name: 视觉设计师
   definition:
     id: visual-designer
-    version: 1.2.9
+    version: 1.2.11
   roleInstructions: visual.md
   canDelegate: false
 - role: director
   name: 分镜导演
   definition:
     id: storyboard-director
-    version: 1.6.11
+    version: 1.6.15
   roleInstructions: director.md
   canDelegate: false
 - role: video
   name: AI 视频制作人
   definition:
     id: video-producer
-    version: 2.5.9
+    version: 2.5.14
   roleInstructions: video.md
   canDelegate: false
 - role: music
   name: 音乐制作人
   definition:
     id: music-producer
-    version: 1.4.8
+    version: 1.4.9
   roleInstructions: music.md
   canDelegate: false
 - role: post
   name: 后期制作人
   definition:
     id: post-producer
-    version: 1.1.7
+    version: 1.1.8
   roleInstructions: post.md
   canDelegate: false

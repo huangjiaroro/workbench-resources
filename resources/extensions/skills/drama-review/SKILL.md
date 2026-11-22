@@ -2,7 +2,7 @@
 name: drama-review
 description: 审核单集正文与续作状态、导演规划，或对承重机制、叙事因果、视听疑点及音乐专业问题取得独立意见时使用。
 metadata:
-  version: 1.1.4
+  version: 1.1.5
   display_name: 独立专业复核
 ---
 

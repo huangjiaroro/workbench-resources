@@ -1,17 +1,25 @@
 # 素材登记模板 (asset-registry-template.md)
 
-**本文件仅是只读结构范例，不是项目的实际登记簿。** 人物、服装、场景、道具与音色的 Visual DNA 和真实路径必须登记在组织契约规定的正式 `asset-registry` 产物中；不得修改本 Skill 的模板作为生产记录，也不为单项资产另建并行说明文件。
+**本文件仅是只读结构范例，不是项目的实际登记簿。** 正式 asset-registry.json 只维护当前资产；下方各类型的 Markdown 设计字段写入对应资产的 design.md，图片与实际 Prompt 就近保存。不要修改本 Skill 模板或另建并行登记簿。
+
+登记索引示例（路径相对 artifacts，真实存在才登记）：
+
+```json
+{"assets":[{"asset_id":"CHAR-01","kind":"character","name":"主角","source_refs":["story/blueprint/blueprint.md"],"design_path":"assets/characters/CHAR-01/design.md","image_board_path":"assets/characters/CHAR-01/board.png","prompt_path":"assets/characters/CHAR-01/prompt.md"}]}
+```
+
+设计字段范例（写在各资产自己的 design.md，不复制到 JSON 索引）：
 
 以下是字段示例：适用的识别特征要写具体，确实不适用的属性（如没有头发的非人角色）可写 `N/A`，不要编造。
 
-所有图片必须为 16:9 标准横向制作设定板，严禁将未出图的纯文字草案或计划路径填写为已生成。
+正式视觉资产使用真实生成的 16:9 标准横向制作设定板，草案和计划路径按待办记录。
 
 ---
 
 ## 全剧美术基准
 
 - 美术风格：[已确定的风格基调与核心辨识要求，如新国风冷硬派水墨]
-- 主角标杆设定板：[实际图片相对路径，如 assets/images/characters/char_main_board.png]
+- 主角标杆设定板：[实际图片相对路径，如 assets/characters/CHAR-01/board.png]
 - 采用依据：[准确采用版本与主创确认记录]
 
 ---
@@ -30,14 +38,14 @@
 - eyes｜瞳色与眼神：[具体内容]
 - distinctive｜2～4项稳定识别特征：[具体内容]
 - 基础服装：[基础服饰描述；独立换装链接至下方服装条目]
-- 16:9角色设定板：[真实图片相对路径，如 assets/images/characters/char_01_board.png]
+- 16:9角色设定板：[真实图片相对路径，如 assets/characters/CHAR-01/board.png]
 - 真实图片规格与检查：[16:9横向板；左面部/胸像特写，右全身三视图；浅色纯色背景；检查通过]
 
 声音身份（仅实际需要稳定发声身份的人物填写；无发声需求填 N/A，不因未提供试听而阻断视觉登记）：
 - 声音设计：[声音年龄、音域、质感、口音等]
 - 配置：[提供方、voice_id、模型及实际采用参数]
 - 声学先验标签：[如 strictly youthful male voice, clear and cold tone]
-- 试听文件：[真实音频相对路径，如 assets/audio/voices/char_01_sample.wav]
+- 试听文件：[真实音频相对路径，如 assets/characters/CHAR-01/voice.wav]
 - 收听检查：[与人物匹配度、清晰度检查通过]
 
 ---
@@ -51,7 +59,7 @@
 - fabric｜材质质感：[具体内容]
 - palette｜主色与点缀色：[具体内容]
 - details｜纽扣／口袋／剪裁：[具体内容]
-- 16:9服装设定板：[真实图片相对路径，如 assets/images/costumes/cos_01_board.png]
+- 16:9服装设定板：[真实图片相对路径，如 assets/costumes/COS-01/board.png]
 - 真实图片规格与检查：[16:9横向板；左材质剪裁特写，右人台正面与侧面完整服装，无头部；检查通过]
 
 ---
@@ -67,7 +75,7 @@
 - lighting｜光影气氛：[时间段与光照来源]
 - palette｜主色调：[具体内容]
 - landmarks｜核心地标与陈设：[空间内标志性陈设]
-- 16:9场景设定板：[真实图片相对路径，如 assets/images/scenes/scene_01_board.png]
+- 16:9场景设定板：[真实图片相对路径，如 assets/scenes/SCENE-01/board.png]
 - 真实图片规格与检查：[16:9横向板；左主视角总览，右45度斜角/正面/侧面/俯视四视图；无人、无人影；检查通过]
 
 ---
@@ -82,5 +90,5 @@
 - color｜主色与点缀色：[具体内容]
 - markings｜纹样／符印：[具体内容]
 - condition｜物理状态与尺寸参考：[具体内容]
-- 16:9道具设定板：[真实图片相对路径，如 assets/images/props/prop_01_board.png]
+- 16:9道具设定板：[真实图片相对路径，如 assets/props/PROP-01/board.png]
 - 真实图片规格与检查：[16:9横向五视图板；左主视图，右侧视/顶视/细节/尺寸参照；检查通过]

@@ -9,10 +9,12 @@ zp-comfy probe --connection <配置路径> [--workflow h3-flex|h3-flex-fl|h3|mus
 # 视频生成（全能多参考默认 h3-flex，亦可指定 --workflow h3；h3 可加 --turbo 开启 4 步极速打样）
 zp-comfy video generate --connection <配置路径> --input work/request.json --download outputs/clip.mp4 --record work/clip.job.json
 zp-comfy video generate --connection <配置路径> --prompt-file work/prompt.txt --duration 8 --ratio 16:9 --reference-image inputs/aria.jpg --download outputs/clip.mp4
+zp-comfy video generate --connection <配置路径> --workflow h3-flex --quality low --prompt-file work/prompt.txt --duration 5 --ratio 16:9 --download outputs/flex-draft.mp4
 zp-comfy video generate --connection <配置路径> --workflow h3 --turbo --prompt-file work/prompt.txt --duration 5 --download outputs/draft.mp4
 
 # 视频生成（首尾帧过渡 h3-flex-fl，必需首帧，可选尾帧，尺寸依首帧自适应）
 zp-comfy video generate --connection <配置路径> --workflow h3-flex-fl --prompt-file work/prompt.txt --duration 5 --first-frame inputs/first.png --last-frame inputs/last.png --download outputs/transition.mp4 --record work/fl.job.json
+zp-comfy video generate --connection <配置路径> --workflow h3-flex-fl --quality low --prompt-file work/prompt.txt --duration 5 --first-frame inputs/first.png --last-frame inputs/last.png --download outputs/fl-draft.mp4
 
 # 音乐生成（MiniMax Music 3，输出 MP3）
 zp-comfy music generate --connection <配置路径> --input work/music.json --download outputs/music.mp3 --record work/music.job.json
@@ -26,9 +28,11 @@ zp-comfy task get --connection <原配置路径> --record work/clip.job.json
 一次生成命令内部完成必要素材上传、工作流绑定、提交、轮询和下载。默认等待结果，不要读取内部 engine.mjs 或重写生成／重试程序。
 
 ### 视频工作流选择
-- **`h3-flex`（默认推荐）**：全能多模态参考生视频。0.98 MP 高清，基于 Pika H3 Flex LoRA 与 LCM 6步去噪。输入包含 `prompt`、`durationSeconds`、`aspectRatio`，可选 0–9 张参考图、0–1 个视频、0–3 个音频。适合绝大多数需要角色一致性、道具特征或音画参考的高清镜头。
+- **`h3-flex`（默认推荐）**：全能多模态参考生视频。默认 0.98 MP 高清，基于 Pika H3 Flex LoRA 与 LCM 6 步去噪。输入包含 `prompt`、`durationSeconds`、`aspectRatio`，可选 0–9 张参考图、0–1 个视频、0–3 个音频。适合绝大多数需要角色一致性、道具特征或音画参考的镜头。
 - **`h3`（标清保底 / 极速打样）**：全能多模态参考生视频。0.4 MP 标清。默认采用底模 20 步；**支持 `--turbo`（或 JSON `"turbo": true`）开关**切换至 MiniMax 4 步 Turbo 蒸馏 LoRA，用于**快速验证分镜运镜与动作定稿**。输入结构与 `h3-flex` 相同。用于显存受限或极速草稿验证。
-- **`h3-flex-fl`（首尾帧过渡）**：首尾帧定向过渡生视频。基于 MiniMax FL2VA 底模与 Pika Flex FL LoRA。必需 `firstFrame`（首帧图），可选 `lastFrame`（尾帧图）。**无需且不支持 aspectRatio**（尺寸依首帧自动对齐 32 整数倍），**不支持**多参考图/音视频。用于分镜之间精准接戏、定格图起幅或两画面平滑过渡。
+- **`h3-flex-fl`（首尾帧过渡）**：首尾帧定向过渡生视频。基于 MiniMax FL2VA 底模与 Pika Flex FL LoRA。必需 `firstFrame`（首帧图），可选 `lastFrame`（尾帧图）。尺寸依首帧计算，**不支持** `aspectRatio` 或多参考图/音视频。用于分镜之间精准接戏、定格图起幅或两画面平滑过渡。
+
+两个 Flex 工作流均支持 `--quality high|low`，JSON 写作 `"quality": "low"`。默认 `high` 沿用 0.98 MP 或首帧尺寸。打样用 `low`，目标短边为 480 像素，长边按所选画幅或首帧比例计算，宽高均对齐到 32 像素的倍数。16:9 横屏为 864 × 480，9:16 竖屏为 480 × 864。首帧短边小于 480 像素时，首尾帧工作流只做对齐。
 
 #### 视频 JSON 输入示例（配合 `--input request.json` 使用）
 - **多模态参考（`h3-flex` / `h3`）**：

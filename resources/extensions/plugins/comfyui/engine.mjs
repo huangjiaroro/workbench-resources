@@ -20,9 +20,15 @@ export async function normalizePayload(input,taskType){
   if(taskType==='video'){
     const isFL=manifest.generation_mode==='first_last_frame';
     const allowed=isFL
-      ?new Set(['workflow','prompt','durationSeconds','seed','parameters','firstFrame','lastFrame'])
-      :new Set(['workflow','prompt','durationSeconds','aspectRatio','seed','parameters','turbo','referenceImages','referenceVideos','referenceAudios']);
+      ?new Set(['workflow','prompt','durationSeconds','seed','parameters','quality','firstFrame','lastFrame'])
+      :new Set(['workflow','prompt','durationSeconds','aspectRatio','seed','parameters','quality','turbo','referenceImages','referenceVideos','referenceAudios']);
     if(Object.keys(p).some(k=>!allowed.has(k)))throw new Error('Unsupported video input field');
+    if(p.quality!==undefined){
+      if(!manifest.low_quality_short_edge)throw new Error(`Workflow ${p.workflow} does not support quality selection`);
+      if(p.quality!=='high'&&p.quality!=='low')throw new Error('Invalid quality; expected high or low');
+      // Keep the original input hash for the default quality.
+      if(p.quality==='high')delete p.quality;
+    }
     if(p.parameters?.turbo!==undefined){p.turbo??=p.parameters.turbo;delete p.parameters.turbo;}
     if(Object.keys(p.parameters??{}).length)throw new Error('Unsupported video parameter');
     text('prompt',true);p.durationSeconds??=manifest.defaults.duration_seconds;
@@ -89,8 +95,20 @@ export async function runWorkflow(r){
       graph[String(binding.load_node)].inputs[binding.load_field]=(upload.subfolder?upload.subfolder+'/':'')+upload.name;
     }
     const values={...manifest.defaults,...p.parameters,prompt:p.prompt,caption:p.caption,lyrics:p.lyrics,maxDurationSeconds:p.maxDurationSeconds,duration:p.durationSeconds,seed:p.seed??Math.floor(Math.random()*2**48),fps:manifest.defaults.fixed_fps,filename_prefix:`${manifest.output_expectations.primary_kind}/ZeroPoint/${r.operationId}`,...(p.turbo!==undefined?{turbo:p.turbo}:{})};
+    const shortEdge=p.quality==='low'?manifest.low_quality_short_edge:undefined;
+    values.video_short_edge=shortEdge;
     for(const [key,binding]of Object.entries(b))if(binding.node&&binding.field&&values[key]!==undefined)graph[binding.node].inputs[binding.field]=values[key];
-    if(b.resolution_selector){const binding=b.resolution_selector,inputs=graph[binding.node].inputs;inputs[binding.aspect_ratio_field]=binding.aspect_ratio_values[p.aspectRatio??manifest.defaults.aspect_ratio];inputs[binding.megapixels_field]=manifest.defaults.megapixels;inputs[binding.multiple_field]=manifest.defaults.multiple;}
+    if(b.resolution_selector){
+      const binding=b.resolution_selector, inputs=graph[binding.node].inputs;
+      inputs[binding.aspect_ratio_field]=binding.aspect_ratio_values[p.aspectRatio];
+      inputs[binding.megapixels_field]=manifest.defaults.megapixels;
+      inputs[binding.multiple_field]=manifest.defaults.multiple;
+      if(shortEdge!==undefined){
+        const [width,height]=p.aspectRatio.split(':').map(Number);
+        const aspect=Math.max(width,height)/Math.min(width,height);
+        inputs[binding.megapixels_field]=shortEdge**2*aspect/1024**2;
+      }
+    }
     const response=await json(await request('prompt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:graph,client_id:r.operationId})}));
     if(typeof response.prompt_id!=='string'||!response.prompt_id)throw new Error('missing_prompt_id');return {state:'submitted',remoteJobId:response.prompt_id};
   }

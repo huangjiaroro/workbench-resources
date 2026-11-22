@@ -1,6 +1,6 @@
 format: 3
 id: media
-version: 1.0.3
+version: 1.0.4
 name: 媒体插件
 description: 读取媒体信息、按指定时间抽帧、提取音频和拼接视频，包含跨平台工具与配套技能。
 docs: WORKBENCH-TOOLS.md

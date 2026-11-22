@@ -12,12 +12,13 @@ zp-comfy music generate --connection FILE --input request.json --download music.
 zp-comfy music generate --connection FILE --caption-file caption.txt [--lyrics-file lyrics.txt] --max-duration 60 --download music.mp3
 zp-comfy task wait --connection FILE --record job.json [--job REMOTE_ID]
 zp-comfy task get --connection FILE --record job.json
+  Video quality: --quality high|low (h3-flex and h3-flex-fl, default high; low targets a 480 px short edge).
   Options: --seed INTEGER, --turbo (h3 4-step LoRA for fast drafting), --poll-interval SECONDS (default 5), --timeout SECONDS (default 3600; 0 means no deadline).
 Generation submits once, persists its receipt, waits and downloads by default. Resume with task wait. Unknown submission is never automatically resubmitted.`;
 const argv=process.argv.slice(2);
 if(!argv.length||argv.includes('--help')||argv.includes('-h')){console.log(help);process.exit(0);}
 const command=argv.shift(),action=command==='probe'?undefined:argv.shift(),options={},refs=[];
-const allowed=new Set(['connection','workflow','input','prompt-file','duration','ratio','reference-image','first-frame','last-frame','turbo','caption-file','lyrics-file','max-duration','seed','download','record','no-wait','poll-interval','timeout','job']);
+const allowed=new Set(['connection','workflow','input','prompt-file','duration','ratio','reference-image','first-frame','last-frame','quality','turbo','caption-file','lyrics-file','max-duration','seed','download','record','no-wait','poll-interval','timeout','job']);
 for(let i=0;i<argv.length;i++){
  const key=argv[i].replace(/^--/,'');if(!argv[i].startsWith('--')||!allowed.has(key))throw new Error(`Unknown option: ${argv[i]}`);
  if(key==='no-wait'||key==='turbo'){options[key]=true;continue;}
@@ -48,11 +49,12 @@ try{
  if(existsSync(recordPath)){record=JSON.parse(readFileSync(recordPath,'utf8'));if(record.revision!==1||record.connectionHash!==connectionHash)throw new Error('Receipt or selected connection changed');}
  if(generating){
   if(!options.download)throw new Error('--download is required');
-  const videoOptions=['prompt-file','duration','ratio','reference-image','first-frame','last-frame','turbo'],musicOptions=['caption-file','lyrics-file','max-duration'];
+  const videoOptions=['prompt-file','duration','ratio','reference-image','first-frame','last-frame','quality','turbo'],musicOptions=['caption-file','lyrics-file','max-duration'];
   if((command==='video'?musicOptions:videoOptions).some(k=>options[k]!==undefined||k==='reference-image'&&refs.length))throw new Error('Options do not match generation type');
   if(options.input&&[...videoOptions,...musicOptions,'seed'].some(k=>options[k]!==undefined||k==='reference-image'&&refs.length))throw new Error('Use --input or generation flags, not both');
   const fromFlags=command==='video'?{prompt:options['prompt-file']?readFileSync(resolve(options['prompt-file']),'utf8'):'',durationSeconds:Number(options.duration??5),...(options.ratio!==undefined?{aspectRatio:options.ratio}:{}),...(refs.length?{referenceImages:refs}:{}),...(options['first-frame']?{firstFrame:options['first-frame']}:{}),...(options['last-frame']?{lastFrame:options['last-frame']}:{}),...(options.turbo!==undefined?{turbo:true}:{})}:{caption:options['caption-file']?readFileSync(resolve(options['caption-file']),'utf8'):'',lyrics:options['lyrics-file']?readFileSync(resolve(options['lyrics-file']),'utf8'):'',maxDurationSeconds:Number(options['max-duration']??60)};
   const input=options.input?JSON.parse(readFileSync(resolve(options.input),'utf8')):fromFlags;
+  if(options.quality!==undefined)input.quality=options.quality;
   if(options.workflow&&input.workflow&&options.workflow!==input.workflow)throw new Error('Conflicting workflow selections');
   const payload=await normalizePayload({...input,...(options.workflow?{workflow:options.workflow}:{}),...(options.seed!==undefined?{seed:Number(options.seed)}:{})},command);
   const manifest=await workflowManifest(payload.workflow);

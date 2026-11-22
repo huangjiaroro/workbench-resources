@@ -10,7 +10,7 @@ Ref2VA完整提交subject_definitions、summary、retention_analysis、detailed_
 
 ## 参考与当前工作流
 
-素材文件、上传顺序和引用用途保存在 `video-production` 产物 的对应生成记录中，输入使用实际文件路径。`referenceImages` 的选择见 [reference-policy.md](reference-policy.md)。图片／视频／音频分别匹配对应标签，角色与说话人对应按prompts.md及官方指南核对；编号和引用不代替真实素材。多模态音频与画外音（`(S1)` 绑定、`says in an off-screen voiceover`、`while the character's lips remain completely closed`、跨镜头 `<scenetrans>`）遵循 [prompts.md](prompts.md) 的标准画外音规范。
+采用结果的素材文件、上传顺序和引用用途随对应 Clip 的 prompt.md 保存，输入使用实际文件路径。`referenceImages` 的选择见 [reference-policy.md](reference-policy.md)。图片／视频／音频分别匹配对应标签，角色与说话人对应按prompts.md及官方指南核对；编号和引用不代替真实素材。多模态音频与画外音（`(S1)` 绑定、`says in an off-screen voiceover`、`while the character's lips remain completely closed`、跨镜头 `<scenetrans>`）遵循 [prompts.md](prompts.md) 的标准画外音规范。
 
 ComfyUI 的多参考与首尾帧工作流可能有不同的输入限制；按当前已安装的 `comfyui-operations` 或相应插件说明选择，不能假定某一入口支持全部参考类型。参考视频音轨与独立音频同时输入时，服务端合并和Audio编号顺序尚未验证；该缺口仅影响相关输入组合，使用前核对真实工作流，不构造含糊声音引用。
 
