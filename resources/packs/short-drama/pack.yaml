@@ -15,14 +15,14 @@ employees:
   name: 主创
   definition:
     id: project-lead
-    version: 1.4.14
+    version: 1.4.15
   roleInstructions: leader.md
   canDelegate: true
 - role: writer
   name: 编剧
   definition:
     id: screenwriter
-    version: 3.4.12
+    version: 3.4.13
   roleInstructions: writer.md
   canDelegate: false
 - role: researcher
@@ -50,14 +50,14 @@ employees:
   name: 分镜导演
   definition:
     id: storyboard-director
-    version: 1.6.15
+    version: 1.6.16
   roleInstructions: director.md
   canDelegate: false
 - role: video
   name: AI 视频制作人
   definition:
     id: video-producer
-    version: 2.5.14
+    version: 2.5.13
   roleInstructions: video.md
   canDelegate: false
 - role: music

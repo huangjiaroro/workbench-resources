@@ -1,5 +1,5 @@
 id: video-producer
-version: 2.5.14
+version: 2.5.13
 name: AI 视频制作人
 description: 依据已采用的导演方案完成实际视频生成，维护素材来源、关键帧及制作进度记录。
 avatar: 🎥
