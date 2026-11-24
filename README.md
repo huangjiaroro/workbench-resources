@@ -28,7 +28,9 @@ Git 记录源码改动。资源通过独立发布流程进入 Workbench Hub，�
 | `pnpm export:plugins` | 导出 `dist/plugins` 下的完整插件包和索引 |
 | `pnpm export:skills` | 导出 `dist/skills` 下的完整技能包和索引 |
 | `pnpm bundle:pack --pack engineering-team` | 校验组织及其员工、技能依赖，生成源码集合与 ZIP |
-| `pnpm sync:pack --help` | 从源码发布变更并更新指定的本机组织，见 [组织同步](docs/short-drama.md#一键同步) |
+| `pnpm sync:pack --help` | 预览组织及其依赖的正式发布，或同时更新指定的本机组织。选择 `--publish-only` 可仅发布。见 [组织同步](docs/short-drama.md#一键同步) |
+| `pnpm sync:skill --skill <id> --apply` | 发布单个技能并更新本机当前版本。已分配该技能的员工在新任务中使用新版 |
+| `pnpm sync:plugin --help` | 预览插件发布与本机更新。准备插件依赖后，按范围选择 `--apply` 或 `--apply --publish-only` |
 | `pnpm check:hub-sources --data-dir /绝对路径/工作台数据 --source-id 来源ID` | 只读比较技能、插件、员工、组织源码与 Hub 正式完整包，并检查准确依赖；可用 `--pack ID,ID` 限定组织及依赖 |
 | `pnpm test` | 验证组织打包、重建失败时的原包保留以及作品资料插件界面 |
 | `pnpm check:docs` | 检查资源和维护说明的本地链接与标题引用 |

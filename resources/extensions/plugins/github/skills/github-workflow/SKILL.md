@@ -5,7 +5,7 @@ description: 在获准的 Git 仓库准备提交和 PR，组织并行工作区�
 
 # Git 与 GitHub 工作流
 
-先确认仓库、目标分支和本次授权，再用 `git status` 与 diff 查清原有改动。按指定文件暂存和提交，核对提交内容及 SHA。推送和创建 PR 时使用 [GitHub 插件入口](../../WORKBENCH-TOOLS.md)，明确选择连接、目标仓库及源分支，按授权执行。
+先确认仓库、目标分支和本次授权，再用 `git status` 与 diff 查清原有改动。按指定文件暂存和提交，核对提交内容及 SHA。克隆、获取分支、推送和创建 PR 时使用 [GitHub 插件入口](../../WORKBENCH-TOOLS.md)，使用当前登录身份，明确目标仓库及源分支，按授权执行。从远端获取分支后，先比较当前 HEAD 和 FETCH_HEAD，再按本次目标整合。
 
 ## 并行工作
 
