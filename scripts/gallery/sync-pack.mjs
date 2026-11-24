@@ -3,6 +3,7 @@ import { isAbsolute, join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { parseArgs } from 'node:util';
 import { importWorkbenchModule } from '../lib/workbench.mjs';
+import {employeeTemplate, organizationTemplate} from '../lib/template-source.mjs';
 import {
   loadExtensionEmployees,
   extensionSkillRoot,
@@ -21,9 +22,10 @@ const {
   parseDistribution,
   reidentifyDistribution,
   packageId,
+  compareVersions,
   sha256,
 } = await importWorkbenchModule('packages/resource-loader/src/distribution.ts');
-const { templateFiles, templateSemantics } = await importWorkbenchModule(
+const { templateFiles } = await importWorkbenchModule(
   'packages/resource-loader/src/template-package.ts',
 );
 const { isBuiltinResource } = await importWorkbenchModule(
@@ -32,18 +34,6 @@ const { isBuiltinResource } = await importWorkbenchModule(
 const { GalleryClient } = await importWorkbenchModule(
   'apps/daemon/src/application/gallery-client.ts',
 );
-
-const shortDramaEmployees = new Set([
-  'project-lead',
-  'screenwriter',
-  'creative-researcher',
-  'quality-reviewer',
-  'visual-designer',
-  'storyboard-director',
-  'video-producer',
-  'music-producer',
-  'post-producer',
-]);
 
 class RequestError extends Error {
   constructor(label, status, detail) {
@@ -133,22 +123,23 @@ async function main() {
       'allow-http': { type: 'boolean' },
       'release-type': { type: 'string', default: 'patch' },
       apply: { type: 'boolean' },
+      'publish-only': { type: 'boolean' },
       help: { type: 'boolean' },
     },
   });
   if (args.help) {
     console.log(
-      'pnpm sync:pack --pack short-drama --data-dir /工作台数据 --source-id 来源ID --token-file /发布令牌文件 --instance-id 组织实例ID [--apply] [--allow-new] [--allow-global-switch] [--allow-http] [--release-type patch|minor|major]',
+      'pnpm sync:pack --pack short-drama --data-dir /工作台数据 --source-id 来源ID --token-file /发布令牌文件 --instance-id 组织实例ID | --publish-only [--apply] [--allow-new] [--allow-global-switch] [--allow-http] [--release-type patch|minor|major]',
     );
     return;
   }
   if (
     !args['source-id'] ||
-    !args['instance-id'] ||
+    (!args['instance-id'] && !args['publish-only']) ||
     ![args['data-dir'], args['token-file']].every((p) => p && isAbsolute(p))
   )
     throw new Error(
-      '需要 --data-dir、--source-id、--token-file 和 --instance-id，文件路径须为绝对路径。使用 --help 查看参数。',
+      '需要 --data-dir、--source-id、--token-file 以及 --instance-id 或 --publish-only，文件路径须为绝对路径。使用 --help 查看参数。',
     );
   if (!['patch', 'minor', 'major'].includes(args['release-type']))
     throw new Error('无效的发布级别');
@@ -163,8 +154,7 @@ async function main() {
     !pack.employees.some((role) => role.role === 'leader')
   )
     throw new Error('组织清单必须与目录同名并声明 leader 岗位');
-  const shortDrama = pack.id === 'short-drama';
-  const organizationId = shortDrama ? 'huangjiaroro-short-drama' : pack.id;
+  const organizationId = pack.id;
   const selected = pack.employees.map((role) => {
     const employee = profiles.find(
       (item) =>
@@ -172,12 +162,10 @@ async function main() {
         item.version === role.definition?.version,
     );
     if (!employee) throw new Error(`岗位 ${role.role} 必须引用独立员工定义`);
-    if (shortDrama && !shortDramaEmployees.has(employee.id))
-      throw new Error(`短剧新员工 ${employee.id} 需要先明确 Hub 标识映射`);
     return {
       role,
       employee,
-      id: shortDrama ? `huangjiaroro-${employee.id}` : employee.id,
+      id: employee.id,
       skills: [
         ...new Set(
           [...employee.skills, ...(role.skills ?? [])].map((ref) => ref.id),
@@ -222,30 +210,18 @@ async function main() {
     !args['allow-http']
   )
     throw new Error('向已保存的公网 HTTP 来源发送令牌需要 --allow-http（明文传输）');
-  const instanceId = encodeURIComponent(args['instance-id']);
-  await owner('GET', `/v2/organizations/${instanceId}/config`);
-  const { roles } = await owner('GET', `/v2/organizations/${instanceId}/roles`);
-  const { members } = await owner(
-    'GET',
-    `/v2/organizations/${instanceId}/members`,
-  );
-  const desired = pack.employees
-    .map((role) => role.role)
-    .sort()
-    .join(',');
-  if (
-    roles
-      .map((role) => role.roleKey)
-      .sort()
-      .join(',') !== desired ||
-    members
-      .map((member) => member.role)
-      .sort()
-      .join(',') !== desired
-  )
-    throw new Error(
-      '本机实例岗位或成员与源码不同，当前版本切换接口需要一一对应',
-    );
+  let members = [];
+  if (!args['publish-only']) {
+    const instanceId = encodeURIComponent(args['instance-id']);
+    await owner('GET', `/v2/organizations/${instanceId}/config`);
+    const { roles } = await owner('GET', `/v2/organizations/${instanceId}/roles`);
+    ({ members } = await owner('GET', `/v2/organizations/${instanceId}/members`));
+    const desired = pack.employees.map((role) => role.role).sort().join(',');
+    if (
+      roles.map((role) => role.roleKey).sort().join(',') !== desired ||
+      members.map((member) => member.role).sort().join(',') !== desired
+    ) throw new Error('本机实例岗位或成员与源码不同，当前版本切换接口需要一一对应');
+  }
 
   const client = new GalleryClient(undefined, args['data-dir']);
   try {
@@ -264,8 +240,7 @@ async function main() {
     if (
       !['read', 'upload', 'publish'].every((scope) =>
         principal.scopes.includes(scope),
-      ) ||
-      (shortDrama && principal.publisherId !== 'huangjiaroro')
+      )
     )
       throw new Error(
         '令牌的发布者或 read/upload/publish 权限不符合本次发布要求',
@@ -368,6 +343,22 @@ async function main() {
         throw new Error(`技能 ${id} 的本机安装来自其他来源，请先核对`);
     }
 
+    const verified = new Set();
+    async function verifyArchive(d) {
+      const key = `${packageKey(d)}/${d.version}/${d.payloadDigest}`;
+      if (verified.has(key)) return;
+      const response = await fetch(info.url + '/api/gallery/v1' + releasePath(d) + `/${d.version}/archive`, {
+        redirect: 'error', signal: AbortSignal.timeout(90_000),
+        headers: {authorization: `Bearer ${readFileSync(args['token-file'], 'utf8').trim()}`},
+      });
+      if (!response.ok) throw new Error(`正式包回取失败：${key} (${response.status})`);
+      const bytes = Buffer.from(await response.arrayBuffer());
+      const pkg = parseDistribution(bytes);
+      client.validateManifest(d, pkg.manifest, bytes);
+      verified.add(key);
+      report('verified', {package: packageKey(d), version: d.version, digest: d.payloadDigest});
+    }
+
     async function publish(bytes, preview) {
       const { manifest: m } = parseDistribution(bytes);
       const { head, published } = baselines.get(packageKey(m));
@@ -378,6 +369,7 @@ async function main() {
             reidentifyDistribution(bytes, m.id, published.version),
           ).manifest.payloadDigest === published.payloadDigest)
       ) {
+        await verifyArchive(published);
         report('reuse', { package: packageKey(m), version: published.version });
         return published;
       }
@@ -426,6 +418,9 @@ async function main() {
         ...(m.kind === 'employee' || m.kind === 'organization'
           ? { releaseType: args['release-type'] }
           : {}),
+        ...(m.version && (!head.version || compareVersions(m.version, head.version) > 0)
+          ? { targetVersion: m.version }
+          : {}),
       };
       let envelope;
       try {
@@ -446,6 +441,7 @@ async function main() {
         result.source?.payloadDigest !== m.payloadDigest
       )
         throw new Error(`发布回执与源包不符：${packageKey(m)}`);
+      await verifyArchive(result);
       report('published', {
         package: packageKey(m),
         version: result.version,
@@ -461,22 +457,8 @@ async function main() {
         skills.set(id, await publish(bytes, preview));
       const employees = new Map();
       for (const { employee, id, skills: ids } of byEmployee.values()) {
-        const definition = {
-          kind: 'employee',
-          id,
-          version: employee.version,
-          versionSemantics: templateSemantics,
-          name: employee.name,
-          description: employee.description,
-          avatar: employee.avatar,
-          instructions: employee.instructions,
-          playbook: employee.playbook,
-          skills: ids.map((skill) =>
-            skills.has(skill)
-              ? reference(skills.get(skill))
-              : builtin('skill', skill),
-          ),
-        };
+        const definition = employeeTemplate(employee, ids, (kind, skill) =>
+          skills.has(skill) ? reference(skills.get(skill)) : builtin(kind, skill));
         employees.set(
           id,
           await publish(
@@ -485,27 +467,11 @@ async function main() {
           ),
         );
       }
-      const organization = {
-        kind: 'organization',
-        id: organizationId,
-        version: pack.version,
-        versionSemantics: templateSemantics,
-        name: pack.name,
-        description: '',
-        workMode: pack.workMode,
-        leaderRole: 'leader',
-        playbook: pack.playbook,
-        artifactContract: pack.artifactContract,
-        roles: selected.map(({ role, id }) => ({
-          role: role.role,
-          name: role.name,
-          description: '',
-          instructions: role.roleInstructions,
-          canDelegate: role.canDelegate ?? false,
-          employee: reference(employees.get(id)),
-        })),
-        plugins: pluginRefs.map((d) => (d.builtin ? d : reference(d))),
-      };
+      const organization = organizationTemplate(pack,
+        new Map(selected.map(({role, employee}) => [role.role, employee])),
+        (kind, id) => kind === 'employee' ? reference(employees.get(id)) :
+          pluginRefs.find(ref => ref.id === id).builtin ? builtin(kind, id) :
+            reference(pluginRefs.find(ref => ref.id === id)));
       const root = await publish(
         createTemplateDistribution('organization', templateFiles(organization)),
         preview,
@@ -525,6 +491,10 @@ async function main() {
       instanceId: args['instance-id'],
     });
     const preview = await publishTree(true);
+    if (args['publish-only']) {
+      if (args.apply) await publishTree(false);
+      return;
+    }
     const memberIds = new Set(members.map((member) => member.employeeId));
     function checkReferences(resource, references) {
       const shared = references.filter((ref) =>

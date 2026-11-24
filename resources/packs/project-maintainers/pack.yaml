@@ -1,5 +1,5 @@
 id: project-maintainers
-version: 2.2.0
+version: 2.3.0
 workMode: conversations
 name: 项目维护者
 playbook: playbook.md
@@ -9,26 +9,15 @@ employees:
       - id: memory-management
       - id: workbench-resource-authoring
     name: 组织维护负责人
-    definition: { id: organization-maintainer, version: 1.8.0 }
+    definition: { id: organization-maintainer, version: 1.9.0 }
     canDelegate: true
     maintenancePermissions:
       [config.read, config.write, config.admin, diagnosis.read, resource.install]
-  - role: skill-engineer
-    skills:
-      - id: memory-management
-      - id: workbench-resource-authoring
-    name: 技能工程师
-    definition: { id: skill-engineer, version: 1.6.0 }
+  - role: resource-maintainer
+    name: 组织资源维护员
+    definition: { id: organization-resource-maintainer, version: 1.0.0 }
     canDelegate: false
-    maintenancePermissions: [config.read, diagnosis.read, resource.install]
-  - role: plugin-engineer
-    skills:
-      - id: memory-management
-      - id: workbench-resource-authoring
-    name: 插件工程师
-    definition: { id: plugin-engineer, version: 1.1.0 }
-    canDelegate: false
-    maintenancePermissions: [config.read, diagnosis.read, resource.install]
+    maintenancePermissions: [config.read, diagnosis.read]
   - role: diagnostician
     skills:
       - id: memory-management
@@ -36,3 +25,8 @@ employees:
     definition: { id: runtime-diagnostician, version: 1.4.0 }
     canDelegate: false
     maintenancePermissions: [config.read, diagnosis.read]
+  - role: resource-publisher
+    name: 资源发布员
+    definition: { id: resource-publisher, version: 1.0.0 }
+    canDelegate: false
+    maintenancePermissions: [config.read, config.write, resource.install]

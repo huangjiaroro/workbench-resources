@@ -29,7 +29,7 @@ Git 记录源码改动。资源通过独立发布流程进入 Workbench Hub，�
 | `pnpm export:skills` | 导出 `dist/skills` 下的完整技能包和索引 |
 | `pnpm bundle:pack --pack engineering-team` | 校验组织及其员工、技能依赖，生成源码集合与 ZIP |
 | `pnpm sync:pack --help` | 从源码发布变更并更新指定的本机组织，见 [组织同步](docs/short-drama.md#一键同步) |
-| `pnpm check:hub-sources --data-dir /绝对路径/工作台数据 --source-id 来源ID` | 只读比较扩展源码与 Hub 当前正式完整包 |
+| `pnpm check:hub-sources --data-dir /绝对路径/工作台数据 --source-id 来源ID` | 只读比较技能、插件、员工、组织源码与 Hub 正式完整包，并检查准确依赖；可用 `--pack ID,ID` 限定组织及依赖 |
 | `pnpm test` | 验证组织打包、重建失败时的原包保留以及作品资料插件界面 |
 | `pnpm check:docs` | 检查资源和维护说明的本地链接与标题引用 |
 

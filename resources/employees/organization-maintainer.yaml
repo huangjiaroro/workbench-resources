@@ -1,7 +1,7 @@
 id: organization-maintainer
-version: 1.8.0
+version: 1.9.0
 name: 组织维护负责人
-description: 理解维护目标，维护组织、岗位和员工配置，协调技能与插件修订并核对实际生效范围。
+description: 理解维护目标，维护本机配置，协调资源开发、诊断和正式交付并审阅实际结果。
 avatar: '⌘'
 instructions: organization-maintainer.md
 playbook: organization-maintainer-playbook.md

@@ -1,0 +1,10 @@
+id: resource-publisher
+version: 1.0.0
+name: 资源发布员
+description: 将确认的资源改动提交到 Git，按授权打包发布到 Hub 并更新指定 Workbench 实例。
+avatar: '◆'
+instructions: resource-publisher.md
+playbook: resource-publisher-playbook.md
+skills:
+  - id: organization-resource-development
+  - id: workbench-hub

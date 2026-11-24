@@ -20,21 +20,7 @@
 
 ## 资源身份：沿用原有发布关系
 
-当前这套组织的发布者为 `huangjiaroro`，Hub 组织标识是 **`huangjiaroro-short-drama`**；源码组织标识为 **`short-drama`**。它们不是两个待分别发布的组织。
-
-| 岗位 | 源码员工定义 | 原有 Hub 员工标识 |
-| --- | --- | --- |
-| 主创 | `project-lead` | `huangjiaroro-project-lead` |
-| 编剧 | `screenwriter` | `huangjiaroro-screenwriter` |
-| 创作研究员 | `creative-researcher` | `huangjiaroro-creative-researcher` |
-| 质量审查员 | `quality-reviewer` | `huangjiaroro-quality-reviewer` |
-| 视觉设计师 | `visual-designer` | `huangjiaroro-visual-designer` |
-| 分镜导演 | `storyboard-director` | `huangjiaroro-storyboard-director` |
-| AI 视频制作人 | `video-producer` | `huangjiaroro-video-producer` |
-| 音乐制作人 | `music-producer` | `huangjiaroro-music-producer` |
-| 后期制作人 | `post-producer` | `huangjiaroro-post-producer` |
-
-这些对应关系属于本套已有资源，不是给其他资源自动添加作者前缀的算法。技能和插件按自身实际发布身份核对。
+当前这套组织的发布者为 `huangjiaroro`，Hub 与源码均使用组织标识 **`short-drama`**。员工标识直接使用对应的源码定义标识：`project-lead`、`screenwriter`、`creative-researcher`、`quality-reviewer`、`storyboard-director`、`visual-designer`、`video-producer`、`music-producer`、`post-producer`。发布和核验不添加作者前缀。旧前缀资源保留作历史证据；已有客户端由应用升级迁移来源关系，安装与采用仍使用准确正式包。
 
 发布前从当前配置的 Hub 列出资源及全部分页，核对来源、发布者、标识、版本历史和本机来源记录。用猜测的标识查询得到 404，不能据此认定资源从未发布；同名卡片也不能证明同一资源。若已有资源的更新预览显示“首次发布”，先核对目标身份与历史匹配，避免创建平行模板。
 

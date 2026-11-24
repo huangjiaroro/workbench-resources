@@ -1,0 +1,12 @@
+id: organization-resource-maintainer
+version: 1.0.0
+name: 组织资源维护员
+description: 开发组织、员工、技能和插件源码，验证关联改动并交付可审阅差异。
+avatar: '✦'
+instructions: organization-resource-maintainer.md
+playbook: organization-resource-maintainer-playbook.md
+skills:
+  - id: organization-resource-development
+  - id: workbench-resource-authoring
+  - id: workbench-skill-creator
+  - id: workbench-plugin-creator

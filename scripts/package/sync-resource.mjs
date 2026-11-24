@@ -1,15 +1,15 @@
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { isAbsolute, join } from 'node:path';
+import { readFileSync, existsSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { parseArgs } from 'node:util';
 import { DatabaseSync } from 'node:sqlite';
 import { importWorkbenchModule } from '../lib/workbench.mjs';
 import {
   extensionPluginRoot,
-  resourceSourceRoot,
+  extensionSkillRoot,
 } from '../lib/resource-sources.mjs';
 
-const { readSkillFiles, skillPackageDigest } = await importWorkbenchModule(
+const { loadSkillDefinition, readSkillFiles } = await importWorkbenchModule(
   'packages/resource-loader/src/skill.ts',
 );
 const { parsePluginManifest } = await importWorkbenchModule(
@@ -17,13 +17,12 @@ const { parsePluginManifest } = await importWorkbenchModule(
 );
 const {
   createPluginDistribution,
+  createSkillDistribution,
   parseDistribution,
   reidentifyDistribution,
   sha256,
   packageId,
-} = await importWorkbenchModule(
-  'packages/resource-loader/src/distribution.ts',
-);
+} = await importWorkbenchModule('packages/resource-loader/src/distribution.ts');
 const { GalleryClient } = await importWorkbenchModule(
   'apps/daemon/src/application/gallery-client.ts',
 );
@@ -90,7 +89,9 @@ const report = (event, details) =>
 async function main() {
   const { values: args } = parseArgs({
     options: {
-      plugin: { type: 'string', default: 'comfyui' },
+      kind: { type: 'string' },
+      plugin: { type: 'string' },
+      skill: { type: 'string' },
       'data-dir': {
         type: 'string',
         default:
@@ -104,6 +105,7 @@ async function main() {
       'token-file': { type: 'string' },
       changelog: { type: 'string' },
       apply: { type: 'boolean' },
+      'publish-only': { type: 'boolean' },
       'allow-http': { type: 'boolean' },
       help: { type: 'boolean' },
     },
@@ -111,15 +113,18 @@ async function main() {
 
   if (args.help) {
     console.log(`用法:
-  node scripts/package/sync-plugin.mjs [选项]
+  pnpm sync:skill --skill <id> [选项]
+  pnpm sync:plugin --plugin <id> [选项]
 
 选项:
+  --skill <id>         目标技能标识
   --plugin <id>        目标插件标识 (默认: comfyui)
   --data-dir <path>    Workbench 数据目录
   --source-id <id>     Hub 来源 ID (默认自动读取已启用来源)
   --token-file <path>  发布令牌文件路径 (默认自动从本地 secrets 读取)
   --changelog <text>   版本更新说明
-  --apply              实际执行提交与本地更新 (不加此参数时仅预览)
+  --apply              实际执行发布及所选本机安装 (不加此参数时仅预览)
+  --publish-only       仅发布，保留本机当前版本
   --allow-http         允许向公网 HTTP 来源发送凭据
   --help               显示此帮助信息
 `);
@@ -131,26 +136,45 @@ async function main() {
     throw new Error(`未找到 Workbench 数据目录: ${dataDir}`);
   }
 
-  const pluginId = args.plugin;
-  packageId(pluginId);
-  const pluginDir = join(extensionPluginRoot, pluginId);
-  if (!existsSync(join(pluginDir, 'plugin.yaml'))) {
-    throw new Error(`未在插件源码目录中找到 plugin.yaml: ${pluginDir}`);
+  const kind = args.kind ?? (args.skill !== undefined ? 'skill' : 'plugin');
+  if (kind !== 'plugin' && kind !== 'skill')
+    throw new Error('只支持技能和插件');
+  if (
+    kind === 'skill'
+      ? !args.skill || args.plugin !== undefined
+      : args.skill !== undefined
+  )
+    throw new Error('请用 --skill 或 --plugin 指定对应类型的一个资源');
+  const id = packageId(
+    kind === 'skill' ? args.skill : (args.plugin ?? 'comfyui'),
+  );
+  const label = kind === 'skill' ? '技能' : '插件';
+  const changelog = args.changelog || `Update ${id}`;
+  let bytes;
+  if (kind === 'skill') {
+    const definition = loadSkillDefinition(
+      join(extensionSkillRoot, id, 'SKILL.md'),
+    );
+    if (definition.id !== id) throw new Error('技能源码标识与目录不同');
+    bytes = createSkillDistribution(definition, changelog);
+  } else {
+    const files = readSkillFiles(join(extensionPluginRoot, id));
+    const manifestFile = files.find((f) => f.path === 'plugin.yaml');
+    if (!manifestFile) throw new Error(`找不到插件清单 ${id}/plugin.yaml`);
+    const definition = parsePluginManifest(
+      manifestFile.content.toString('utf8'),
+    );
+    if (definition.id !== id) throw new Error('插件源码标识与目录不同');
+    bytes = createPluginDistribution(definition, files, changelog);
   }
 
-  // 1. 读取本地插件定义与打包
-  const pluginFiles = readSkillFiles(pluginDir);
-  const manifestFile = pluginFiles.find((f) => f.path === 'plugin.yaml');
-  const definition = parsePluginManifest(manifestFile.content.toString('utf8'));
-  const changelog =
-    args.changelog || `Update ${definition.name || pluginId} plugin`;
-  const bytes = createPluginDistribution(definition, pluginFiles, changelog);
   const { manifest: m } = parseDistribution(bytes);
   const archiveSha256 = sha256(bytes);
 
   report('package-ready', {
-    plugin: pluginId,
-    sourceVersion: definition.version,
+    kind,
+    id,
+    sourceVersion: m.version,
     payloadDigest: m.payloadDigest,
     archiveSha256,
     bytes: bytes.length,
@@ -224,7 +248,7 @@ async function main() {
       throw new Error('发布令牌缺少必要的 read/upload/publish 权限');
     }
 
-    const path = `/packages/plugin/${pluginId}`;
+    const path = `/packages/${kind}/${id}`;
     const head = await hub('GET', `${path}/head`);
     let currentPublished;
     if (head.version) {
@@ -239,21 +263,30 @@ async function main() {
       headDigest: head.payloadDigest ?? null,
     });
 
+    if (
+      currentPublished &&
+      currentPublished.publisherId !== principal.publisherId
+    )
+      throw new Error('正式资源属于其他发布者');
     const isMatch =
       currentPublished &&
       (currentPublished.source?.payloadDigest === m.payloadDigest ||
-        currentPublished.payloadDigest === m.payloadDigest);
+        parseDistribution(
+          reidentifyDistribution(bytes, id, currentPublished.version),
+        ).manifest.payloadDigest === currentPublished.payloadDigest);
 
     if (isMatch) {
       report('hub-already-latest', {
-        plugin: pluginId,
+        kind,
+        id,
         version: currentPublished.version,
         payloadDigest: currentPublished.payloadDigest,
       });
       publishedDescriptor = currentPublished;
     } else {
       report(args.apply ? 'publishing' : 'would-publish', {
-        plugin: pluginId,
+        kind,
+        id,
         baseVersion: head.version ?? null,
         sourceDigest: m.payloadDigest,
       });
@@ -267,19 +300,23 @@ async function main() {
 
       // 执行发布流程
       const key = sha256(
-        JSON.stringify([
-          path,
-          head.version,
-          head.payloadDigest,
-          archiveSha256,
-        ]),
+        JSON.stringify([path, head.version, head.payloadDigest, archiveSha256]),
       );
-      const { uploadId } = await hub('POST', '/uploads', {
+      let { uploadId } = await hub('POST', '/uploads', {
         operationKey: `upload-${key}`,
         archiveSha256,
         bytes: bytes.length,
       });
-      const upload = await hub('GET', `/uploads/${uploadId}`);
+      let upload = await hub('GET', `/uploads/${uploadId}`);
+      if (['rejected', 'cleaned', 'failed'].includes(upload.state)) {
+        const retry = await hub('POST', '/uploads', {
+          operationKey: `upload-${key}-${Date.now()}`,
+          archiveSha256,
+          bytes: bytes.length,
+        });
+        uploadId = retry.uploadId;
+        upload = await hub('GET', `/uploads/${uploadId}`);
+      }
       if (upload.state === 'created') {
         await hub('PUT', `/uploads/${uploadId}/archive`, bytes);
       }
@@ -307,58 +344,43 @@ async function main() {
           envelope = (await hub('GET', `/operations/${operationKey}`)).result;
         } catch {
           throw new Error(
-            `发布结果未确认：${pluginId}，操作号 ${operationKey}。请核对 Hub 回执`,
+            `发布结果未确认：${id}，操作号 ${operationKey}。请核对 Hub 回执`,
           );
         }
       }
 
       publishedDescriptor = client.verify(trust, envelope);
+      if (
+        publishedDescriptor.kind !== kind ||
+        publishedDescriptor.id !== id ||
+        publishedDescriptor.publisherId !== principal.publisherId ||
+        publishedDescriptor.source?.payloadDigest !== m.payloadDigest ||
+        envelope.status !== 'published'
+      )
+        throw new Error('正式发布回执与选定资源、发布者或源码摘要不一致');
       report('published', {
-        plugin: pluginId,
+        kind,
+        id,
         version: publishedDescriptor.version,
         digest: publishedDescriptor.payloadDigest,
         operationKey,
-      });
-
-      // 同步更新本地源码 plugin.yaml（保持与 Hub 归档及 reidentifyDistribution 格式一致）
-      const reidentifiedBytes = reidentifyDistribution(
-        bytes,
-        pluginId,
-        publishedDescriptor.version,
-      );
-      const reidentifiedPkg = parseDistribution(reidentifiedBytes);
-      const reidentifiedYaml = reidentifiedPkg.files.find(
-        (f) => f.path === 'plugin.yaml',
-      );
-      const yamlPath = join(pluginDir, 'plugin.yaml');
-      if (reidentifiedYaml) {
-        writeFileSync(yamlPath, reidentifiedYaml.content);
-      } else {
-        const yamlContent = readFileSync(yamlPath, 'utf8');
-        const updatedYaml = yamlContent.replace(
-          /^version:\s*.*$/m,
-          `version: ${publishedDescriptor.version}`,
-        );
-        writeFileSync(yamlPath, updatedYaml, 'utf8');
-      }
-      report('source-updated', {
-        yamlPath,
-        newVersion: publishedDescriptor.version,
       });
     }
   } finally {
     client.close();
   }
 
-  // 4. 更新本机已安装插件（Owner API）
+  if (!args.apply || args['publish-only']) return;
+  // 4. 更新本机已安装资源（Owner API）
   report('local-updating', {
-    plugin: pluginId,
+    kind,
+    id,
     targetVersion: publishedDescriptor.version,
   });
 
   const installInput = {
-    kind: 'plugin',
-    id: pluginId,
+    kind,
+    id,
     version: publishedDescriptor.version,
     sourceId: source.id,
   };
@@ -368,6 +390,8 @@ async function main() {
     ...installInput,
     operationKey: randomUUID(),
   });
+  if (acquired.result?.digest !== publishedDescriptor.payloadDigest)
+    throw new Error('本机下载的正式包摘要不同');
   report('acquired', {
     version: publishedDescriptor.version,
     result: acquired.result,
@@ -390,13 +414,14 @@ async function main() {
     },
   );
   report('install-plan-applied', {
-    plugin: pluginId,
+    kind,
+    id,
     version: publishedDescriptor.version,
     applied,
   });
 
   console.log(
-    `\n✅ 插件 ${pluginId} 已成功发布到 Hub 并在本地更新至版本 ${publishedDescriptor.version}！`,
+    `\n✅ ${label} ${id} 已成功发布到 Hub 并在本地更新至版本 ${publishedDescriptor.version}！`,
   );
 }
 
